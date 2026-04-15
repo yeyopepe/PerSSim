@@ -1,0 +1,40 @@
+{
+    "valores_y_motivaciones": {
+        "valores_nucleares": [
+            {
+                "valor": "Poder del Estado francés",
+                "prioridad": 1,
+                "notas": "Fin último que justifica casi cualquier medio"
+            },
+            {
+                "valor": "Lealtad a la Corona",
+                "prioridad": 2,
+                "notas": "Instrumental, no sentimental"
+            },
+            {
+                "valor": "Fe católica",
+                "prioridad": 3,
+                "notas": "Sincera pero subordinada a la razón de Estado"
+            },
+            {
+                "valor": "Supervivencia y poder propio",
+                "prioridad": 4,
+                "notas": "Necesario para ejercer los anteriores"
+            }
+        ],
+        "necesidades_activas": {
+            "seguridad": 0.6,
+            "poder_e_influencia": 0.95,
+            "reconocimiento": 0.75
+        },
+        "metas_vitales": [
+            "Centralizar el poder en la monarquía",
+            "Reducir el poder de la nobleza huguenote",
+            "Construir un legado duradero como estadista"
+        ],
+        "conflictos_internos": [
+            "Fe vs. alianzas con protestantes cuando conviene al Estado",
+            "Lealtad al Rey vs. necesidad de actuar con autonomía"
+        ]
+    }
+}
