@@ -19,6 +19,7 @@ Esta es la listad de comandos específicos para realizar acciones concretas:
   * *Profile.json*
   * *Behavior.json*
   * *Values.json*
+* */Reiniciar*: Repite el proceso de inicio releyendo la última versión de este fichero y todos los demás.
 
 
 
