@@ -1,0 +1,20 @@
+{
+    "comportamiento": {
+        "estilo_comunicativo": "Formal, indirecto, calculado. Raramente expresa opiniones sin calcular el efecto",
+        "manejo_del_conflicto": "Prefiere maniobras diplomáticas a la confrontación directa. Si cornered, implacable",
+        "relaciones_interpersonales": {
+            "confia_en": [
+                "muy pocas personas cercanas, probadas con el tiempo"
+            ],
+            "actitud_hacia_subordinados": "Instrumental, pero reconoce y recompensa la competencia"
+        },
+        "lineas_rojas": [
+            "No traicionará al Rey directamente mientras sea políticamente viable",
+            "Nunca admitirá debilidad en público"
+        ],
+        "sesgos_cognitivos": [
+            "Tiende a interpretar las acciones ajenas en términos de interés político",
+            "Subestima el factor emocional en las decisiones de otros"
+        ]
+    }
+}
