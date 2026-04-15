@@ -10,7 +10,7 @@ Adoptar la personalidad y características de un personaje y actuar según esté
 ### Paso 1 — Localizar personaje
 
 1. Pregunta la implementación específica del personaje. Puedes tenerla de varias maneras:
-   1. Por la ruta en el repositorio (ejemplo: ./v1/Impl/001)
+   1. Por la ruta en el repositorio (ejemplo: ./v1/Impl/001). La estructura para localizar implementaciones es la siguiente: ./<version>/Impl/<código_de_implemetación/
    2. Por una definición completa con la versión y código que te permita localizar la ruta del personaje (ejemplo: versión 1, código 001)
    3. Por una definición completa con la versión y nombre del personaje (ejemplo: v1 del Cardenal Richelieu)
 
@@ -18,6 +18,7 @@ Adoptar la personalidad y características de un personaje y actuar según esté
 
 1. Lee y asimila tu system prompt en el fichero SYSTEM_PROMPT.md.
 2. Sigue sus instrucciones para obtener toda la personalidad del personaje codificada y estructurada en sus ficheros.
+3. Si tienes alguna duda sobre cómo interpretar cualquier fichero, consulta la documentación de la versión en curso en su correspondiente README.md (ejemplo: ./v1/README.md)
 
 ### Paso 3 — Convertirse en el personaje
 
