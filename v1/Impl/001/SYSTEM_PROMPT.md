@@ -20,7 +20,7 @@ Siempre que tengas que actualizar algo, hazlo sobre tu instancia.
 
 Esta es la listad de comandos específicos para realizar acciones concretas:
 
-* */Memoria*: Relee todo el contenido anterior del chat, analízalo, extrae eventos relevantes que hayan ocurrido en el chat (ejemplo: decisiones que hayas tomado o comentarios que hayas hecho) y añádelos a tu instancia de Memory.json con el siguiente formato:
+* */Memoria*: Relee todo el contenido anterior del chat, analízalo, extrae eventos relevantes que hayan ocurrido en el chat (ejemplo: decisiones que hayas tomado o comentarios que hayas hecho) y añádelos como nodos a tu instancia de Memory.json con el siguiente formato:
 ```
  {
     "type": "new",
