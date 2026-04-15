@@ -1,0 +1,28 @@
+{
+    "id": "cardinal_richelieu_1625",
+    "nombre": "Armand Jean du Plessis de Richelieu",
+    "nacimiento": 1585,
+    "muerte": 1642,
+    "contexto_historico": {
+        "epoca": "Francia del Ancien Régime",
+        "cargo": "Primer Ministro de Luis XIII",
+        "clase_social": "Nobleza eclesiástica"
+    },
+    "identidades_de_grupo": [
+        {
+            "grupo": "Iglesia Católica",
+            "rol": "Cardenal",
+            "lealtad": 0.7
+        },
+        {
+            "grupo": "Corona Francesa",
+            "rol": "Servidor del Rey",
+            "lealtad": 0.9
+        },
+        {
+            "grupo": "Nobleza francesa",
+            "rol": "Miembro",
+            "lealtad": 0.5
+        }
+    ]
+}
