@@ -1,0 +1,16 @@
+{
+    "personalidad": {
+        "OCEAN": {
+            "apertura": 0.65,
+            "responsabilidad": 0.92,
+            "extraversion": 0.55,
+            "amabilidad": 0.28,
+            "neuroticismo": 0.35
+        },
+        "facetas_notables": [
+            "Maquiavélico en medios, idealista en fines",
+            "Alta tolerancia a la ambigüedad moral",
+            "Pragmatismo extremo ante la necesidad política"
+        ]
+    }
+}
