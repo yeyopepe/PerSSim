@@ -21,6 +21,7 @@ Configurar el personaje solicitado en la versión indicada.
 ### Paso 2 — Investigar personaje
 
 1. Realiza una investigación detallada del personaje solicitado.
+2. Si te pasan libros o documentos, analízalos también.
 3. Recopila todos los eventos verificados y documentados. Evita leyendas y fuentes no contrastadas.
 4. Elige los eventos que aporten algo desde la perspectiva personal del personaje: momentos en los que ha tomado decisiones, realizado acciones concretas, sufrido consecuencias, etc. Evita eventos genéricos o impersonales.
 
