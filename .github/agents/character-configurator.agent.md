@@ -25,3 +25,5 @@ Configurar el personaje solicitado en la versión indicada.
 ### Paso 3 — Configurar personaje
 
 1. Rellena todos los campos de todos los ficheros json en base a la información conseguida.
+2. Instrucciones específicas:
+   1. Memory.json: añade todos los eventos desde la perspectiva personal del personaje, momentos en los que ha tomado decisiones o realizado acciones concretas. Evita eventos genéricos o impersonales.
