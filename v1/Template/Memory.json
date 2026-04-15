@@ -4,8 +4,10 @@
     "memory": [
         {
             "__comment": "Cada objeto representa un evento relevante en la vida o historia del personaje.",
-            "date": "__comment: Fecha del evento en formato ISO 8601 (YYYY-MM-DD). Ejemplo: 1624-08-13",
-            "event": "__comment: Descripción del evento en lenguaje natural. Debe ser concisa pero suficientemente detallada para contextualizar las decisiones del personaje. Ejemplo: Richelieu entra oficialmente en el Conseil du Roi y se convierte en el principal ministro de Luis XIII."
+            "type": "__comment: Esta campo tiene siempre el valor 'user' e indica que este evento/recuerdo se ha producido durante la interacción con el usuario."
+            "date": "__comment: Fecha del evento en formato ISO 8601 (YYYY-MM-DD). Ejemplo: 1624-08-13.",
+            "event": "__comment: Descripción del evento en lenguaje natural. Debe ser concisa pero suficientemente detallada para contextualizar las decisiones del personaje. Ejemplo: Richelieu entra oficialmente en el Conseil du Roi y se convierte en el principal ministro de Luis XIII.",
+
         }
     ]
 }
