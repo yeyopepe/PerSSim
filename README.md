@@ -17,21 +17,23 @@ El framework permite:
 
 ```
 PerSSim/
-├── README.md                          # Este fichero
-└── v1/                                # Versión 1 del framework
-    ├── SYSTEM_PROMPT.md               # Prompt de orquestación principal (instrucciones, razonamiento y comandos)
-    ├── Template/                      # Plantilla base para crear nuevos personajes
-    │   ├── SYSTEM_PROMPT.md           # Versión comentada del prompt, con instrucciones de uso
-    │   ├── Identity.json              # Quién es el personaje: nombre, fechas, contexto histórico, afiliaciones
-    │   ├── Profile.json               # Perfil psicológico OCEAN (0.0–1.0) y facetas cualitativas
-    │   ├── Values.json                # Valores nucleares, necesidades activas, metas vitales y conflictos internos
-    │   ├── Behavior.json              # Estilo comunicativo, gestión del conflicto, líneas rojas y sesgos cognitivos
-    │   ├── Memory.json                # Registro de eventos fundamentales que han moldeado al personaje
-    │   └── Archives/
-    │       └── Docs/                  # Fuentes históricas primarias (cartas, papeles de Estado)
-    │       └── PublicLinks.md         # Lista de recursos públicos adicionales sobre el personaje
-    └── Impl/                          # Implementaciones concretas de personajes
-        └── 001/                       # Personaje: Cardenal Richelieu (1585–1642)
+├── README.md                               # Este fichero
+└── v1/                                     # Versión 1 del framework
+    ├── Model/                              # Base teórica y detalle de implementación de esta versión del modelo
+    │   └──README.md                        # Base teórica de esta versión
+    │   └──Implementation.md                # Detalle de implementación de esta versión
+    │   └──Template/                        # Plantilla base para crear nuevos personajes
+    │       ├── SYSTEM_PROMPT.md            # Versión comentada del prompt, con instrucciones de uso
+    │       ├── Identity.json               # Quién es el personaje: nombre, fechas, contexto histórico, afiliaciones
+    │       ├── Profile.json                # Perfil psicológico OCEAN (0.0–1.0) y facetas cualitativas
+    │       ├── Values.json                 # Valores nucleares, necesidades activas, metas vitales y conflictos internos
+    │       ├── Behavior.json               # Estilo comunicativo, gestión del conflicto, líneas rojas y sesgos cognitivos
+    │       ├── Memory.json                 # Registro de eventos fundamentales que han moldeado al personaje
+    │       └── Archives/
+    │           └── Docs/                   # Fuentes históricas primarias (cartas, papeles de Estado)
+    │           └── PublicLinks.md          # Lista de recursos públicos adicionales sobre el personaje
+    └── Impl/                               # Implementaciones concretas de personajes
+        └── 001/                            # Personaje: Cardenal Richelieu (1585–1642)
 ```
 
 ### Descripción de los ficheros de configuración de un personaje
