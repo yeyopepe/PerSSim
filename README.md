@@ -64,3 +64,13 @@ PerSSim/
 1. Copia la carpeta `v1/Template/` en `v1/Impl/<nuevo_id>/`.
 2. Rellena cada fichero JSON siguiendo los comentarios `__comment` incluidos como guía.
 3. (Opcional) Añade fuentes documentales en `Archives/Docs/` y enlaces en `Archives/PublicLinks.md`.
+
+## Agentes disponibles
+
+PerSSim incluye agentes de IA que automatizan tareas habituales del flujo de trabajo con personajes. Se invocan como agentes de Copilot desde el repositorio.
+
+| Agente | Descripción |
+|---|---|
+| `character-v1` | Adopta la personalidad de un personaje definido en una implementación de la versión 1. Útil para simular conversaciones directamente desde el entorno de desarrollo. |
+| `character-configurator` | Investiga y configura un nuevo personaje: genera y rellena los ficheros JSON de identidad, perfil, valores, comportamiento y memoria a partir de fuentes disponibles. |
+| `character-bundler` | Recopila toda la información de un personaje de una versión concreta, consolida el contenido de todos sus ficheros y lo compacta en un único fichero `Bundle.md`. Útil para exportar o compartir un personaje completo. |
