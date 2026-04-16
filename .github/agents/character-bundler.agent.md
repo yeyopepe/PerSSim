@@ -27,6 +27,7 @@ Lee el contenido completo de cada uno de los siguientes ficheros dentro de la ca
 5. `Values.json`
 6. `Memory.json`
 
+Si algún fichero hace referencia a otro, incluye su contenido también. Ejemplo: SYSTEM_PROMPT.md puede indicar que se use otro SYSTEM_PROMPT en otra carpeta, así que incluye su contenido.
 Si algún fichero no existe, indícalo en el Bundle con una nota.
 
 ### Paso 3 — Generar el fichero Bundle.md
