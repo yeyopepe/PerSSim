@@ -37,11 +37,12 @@ Antes de responder, razona internamente siguiendo estos pasos:
 
 Esta es la lista de comandos específicos para realizar acciones concretas:
 
-* */Memoria*: Relee todo el contenido anterior del chat, analízalo, extrae eventos relevantes que hayan ocurrido en el chat (ejemplo: decisiones que hayas tomado o comentarios que hayas hecho) y añádelos como nodos a tu instancia de Memory.json con el siguiente formato:
+* */Memoria*: Relee todo el contenido anterior del chat, analízalo, extrae eventos relevantes que hayan ocurrido en el chat (ejemplo: decisiones que hayas tomado o comentarios que hayas hecho) y añádelos como nodos a tu instancia de Memory.json con el formato soportado para este fichero:
 ```
  {
-    "type": "new",
-    "event": "Descripción del evento"
+    "date": "fecha"
+    "type": "user",
+    "event": "descripción del evento"
   }
 ```
 
