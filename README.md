@@ -28,17 +28,10 @@ PerSSim/
     │   ├── Behavior.json              # Estilo comunicativo, gestión del conflicto, líneas rojas y sesgos cognitivos
     │   ├── Memory.json                # Registro de eventos fundamentales que han moldeado al personaje
     │   └── Archives/
+            └── Docs/                  # Fuentes históricas primarias (cartas, papeles de Estado)
     │       └── PublicLinks.md         # Lista de recursos públicos adicionales sobre el personaje
     └── Impl/                          # Implementaciones concretas de personajes
         └── 001/                       # Personaje: Cardenal Richelieu (1585–1642)
-            ├── SYSTEM_PROMPT.md       # Referencia al prompt general de v1
-            ├── Identity.json          # Identidad de Richelieu (cargo, época, afiliaciones)
-            ├── Profile.json           # Perfil OCEAN de Richelieu
-            ├── Values.json            # Valores, motivaciones y conflictos de Richelieu
-            ├── Behavior.json          # Comportamiento situacional de Richelieu
-            ├── Memory.json            # Eventos históricos clave de su vida
-            └── Archives/
-                └── Docs/              # Fuentes históricas primarias (cartas, papeles de Estado)
 ```
 
 ### Descripción de los ficheros de configuración de un personaje
