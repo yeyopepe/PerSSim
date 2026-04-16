@@ -20,15 +20,17 @@ Leer todos los ficheros de un personaje en su versión e implementación concret
 
 Lee el contenido completo de cada uno de los siguientes ficheros dentro de la carpeta de la implementación:
 
-1. `SYSTEM_PROMPT.md`
+1. `SYSTEM_PROMPT.md`. Este fichero puede hacer referencia a otro SYSTEM_PROMPT en otra carpeta. Si es así, mete el contenido del SYSTEM_PROMPT final.
 2. `Identity.json`
 3. `Profile.json`
 4. `Behavior.json`
 5. `Values.json`
 6. `Memory.json`
 
-Si algún fichero hace referencia a otro, incluye su contenido también. Ejemplo: SYSTEM_PROMPT.md puede indicar que se use otro SYSTEM_PROMPT en otra carpeta, así que incluye su contenido.
+Si algún fichero hace referencia a otro, incluye su contenido también.
 Si algún fichero no existe, indícalo en el Bundle con una nota.
+NO añadas el contenido de ningún fichero que no esté en la lista anterior.
+NO incluyas comentarios ni notas tuyas, solo copia y estructura el contenido de esos ficheros.
 
 ### Paso 3 — Generar el fichero Bundle.md
 
