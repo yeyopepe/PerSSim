@@ -31,7 +31,7 @@ Si algún fichero no existe, indícalo con una nota en el Bundle y continúa.
 
 ### Paso 3 — Generar el fichero Bundle.md
 
-Crea (o sobreescribe si ya existe) el fichero `Bundle_strict_<personaje>.md` dentro de la carpeta de la implementación.
+Crea (o sobreescribe si ya existe) el fichero `/Bundles/Bundle_strict_<personaje>.md` dentro de la carpeta de la implementación.
 
 El Bundle se construye en tres bloques, en este orden:
 
