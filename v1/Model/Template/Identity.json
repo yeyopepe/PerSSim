@@ -1,7 +1,7 @@
 {
-    "__comment": "Fichero de identidad del personaje. Define quién es, cuándo vivió y su contexto histórico y social.",
+    "__comment": "Fichero de identidad del personaje. Define quién es, cuándo vivió y su contexto histórico y social. Rellena primero los datos objetivos y cierra con las identidades de grupo, que requieren razonamiento sobre prioridades.",
 
-    "id": "__comment: Identificador único del personaje. Formato sugerido: nombre_corto_año. Ejemplo: cardinal_richelieu_1625",
+    "id": "__comment: Identificador único del personaje. Formato sugerido: nombre_corto_año_de_instancia. El año puede reflejar el momento vital en que se sitúa la simulación, no necesariamente el nacimiento. Ejemplo: cardinal_richelieu_1625",
 
     "nombre": "__comment: Nombre completo del personaje tal como era conocido históricamente.",
 
@@ -10,18 +10,18 @@
     "muerte": "__comment: Año de muerte (número entero). El personaje no tendrá conocimiento de eventos posteriores a esta fecha. Ejemplo: 1642",
 
     "contexto_historico": {
-        "__comment": "Sitúa al personaje en su época y rol institucional.",
-        "epoca": "__comment: Período histórico o nombre de la era en la que vivió el personaje. Ejemplo: Francia del Ancien Régime",
-        "cargo": "__comment: Cargo o posición principal que ocupó. Ejemplo: Primer Ministro de Luis XIII",
+        "__comment": "Sitúa al personaje en su época y rol institucional en el momento de la instancia, no necesariamente al final de su vida.",
+        "epoca": "__comment: Período histórico o nombre de la era. Ejemplo: Francia del Ancien Régime",
+        "cargo": "__comment: Cargo o posición principal en el momento de la instancia. Si ocupó varios a lo largo de su vida, usa el correspondiente al año del id. Ejemplo: Primer Ministro de Luis XIII",
         "clase_social": "__comment: Estrato social al que pertenecía. Ejemplo: Nobleza eclesiástica"
     },
 
     "identidades_de_grupo": [
         {
-            "__comment": "Cada objeto representa una afiliación o grupo al que pertenecía el personaje.",
+            "__comment": "Cada objeto representa una afiliación relevante. Para identificarlas, pregúntate: ¿a qué grupos debía lealtad el personaje, explícita o implícitamente? Incluye grupos formales (instituciones, estados, órdenes) e informales (familia, facciones, redes de patronazgo). Para asignar el nivel de lealtad, aplica este test: cuando este grupo entró en conflicto con otro, ¿cuál prevaleció? Un personaje que instrumentalizó un grupo pero nunca lo sacrificó tiene lealtad media. Uno que lo traicionó en algún momento documentado, baja.",
             "grupo": "__comment: Nombre del grupo, institución u organización. Ejemplo: Iglesia Católica",
             "rol": "__comment: Rol o posición del personaje dentro del grupo. Ejemplo: Cardenal",
-            "lealtad": "__comment: Nivel de lealtad al grupo, de 0.0 (ninguna) a 1.0 (absoluta). Ejemplo: 0.7"
+            "lealtad": "__comment: Nivel de lealtad al grupo, de 0.0 (ninguna o puramente instrumental) a 1.0 (absoluta, por encima de cualquier otro grupo). Ejemplo: 0.7"
         }
     ]
 }
