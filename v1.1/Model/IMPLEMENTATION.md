@@ -1,146 +1,179 @@
-# **Niveles en la toma de decisiones: una jerarquía accionable**
+# PerSSim v1.1 — Documentación de implementación
 
-Sí es posible —y altamente recomendable— estructurar la toma de decisiones de un agente en capas jerárquicas, donde las capas superiores filtran y condicionan a las inferiores. La investigación en filosofía práctica, psicología cognitiva y arquitecturas de IA convergyen en un modelo de capas que presentamos a continuación.
+## Propósito de este documento
 
-# **El modelo de capas propuesto**
+Este documento describe la implementación técnica de la versión 1.1 del framework PerSSim: qué ficheros componen un personaje, qué contiene cada uno, cómo se relacionan entre sí, y cómo usarlos. Es el documento de referencia para crear nuevos personajes, entender el modelo de datos y operar los agentes disponibles.
 
-Basándonos en la Teoría de Valores de Schwartz, la jerarquía de necesidades, el modelo BDI y las arquitecturas cognitivas ACT-R y CLARION, proponemos una arquitectura de decisión en cinco capas:
+Para la base teórica del modelo (marcos psicológicos, jerarquía de decisiones, referencias académicas), consulta `README.md`.
 
-| **Capa** | **Concepto psicológico** | **Contenido** | **Velocidad de cambio** |
-| --- | --- | --- | --- |
-| 1. Valores nucleares | Schwartz / Moral Foundations | Principios morales y motivacionales más profundos. Casi inmutables. | Décadas |
-| 2. Necesidades activas | Maslow / homeostasis | Estado de satisfacción de necesidades básicas: supervivencia, seguridad, afiliación, estima. | Días / semanas |
-| 3. Metas e intereses | BDI Desires / Goals | Objetivos a medio-largo plazo: poder, riqueza, reconocimiento, legado. | Meses / años |
-| 4. Disposiciones situacionales | Big Five + Emociones | Rasgos que modulan cómo se persiguen las metas: estilo comunicativo, reactividad emocional. | Estable en adultos |
-| 5. Respuestas contextuales | BDI Intentions + Plans | Decisión final en una situación concreta, tras filtrar por las capas anteriores. | Segundos / minutos |
+---
 
-El flujo decisional es top-down con feedback bottom-up: una situación activa la Capa 5, que consulta las disposiciones de la Capa 4, que a su vez selecciona entre las metas de la Capa 3 la más compatible con los valores de la Capa 1 y el estado de necesidades de la Capa 2.
+## Estructura de ficheros de una implementación
 
-# **Cómo funciona el filtrado jerárquico**
+Cada personaje es una carpeta dentro de `v1.1/Impl/<código>/` con la siguiente estructura:
 
-Imaginemos a un personaje histórico con los siguientes parámetros:
-
-- Capa 1 (Valores): Honor y Lealtad al grupo > Poder personal > Benevolencia
-- Capa 2 (Necesidades): Seguridad personal amenazada, afiliación grupal alta
-- Capa 3 (Metas): Ascender políticamente, proteger a su familia, mantener su reputación
-- Capa 4 (Disposiciones): Alta Responsabilidad, baja Amabilidad, alta Extraversión
-- Capa 5 (Situación): Se le ofrece aliarse con el enemigo de su señor a cambio de tierras
-
-El proceso decisional sería: La opción traicionar al señor choca con el valor de Lealtad (Capa 1), lo que genera tensión. La amenaza a la seguridad (Capa 2) hace la oferta atractiva. La meta de reputación (Capa 3) actúa como freno adicional a la traición. La alta Responsabilidad (Capa 4) refuerza el cumplimiento de compromisos previos. El resultado probable: rechaza la oferta pero negocia protección de otra manera.
-
-*Este es exactamente el tipo de razonamiento que un LLM puede simular de forma natural si se le proporciona el estado de cada capa como contexto estructurado. La clave es que las capas superiores actúan como restricciones que narran el espacio de opciones aceptables.*
-
-# **Prioridad dinámica: cuando las capas entran en conflicto**
-
-Schwartz demostró que los valores no son aditivos sino que compiten en un continuum circular. Un individuo con alto valor de Logro personal y alto valor de Benevolencia experimentará tensión permanente. La resolución de este conflicto define el carácter del personaje más que sus valores individuales.
-
-Para implementar esto computacionalmente, se pueden usar dos mecanismos: un vector de prioridades ordenadas (qué valor «gana» cuando hay conflicto explícito) y un sistema de umbrales de activación (un valor se activa cuando la situación lo hace relevante y su activación supera un umbral).
-
-# **Recomendaciones para el modelo de datos**
-
-A partir de todo lo anterior, proponemos un modelo de datos en cuatro bloques que puede servir como base para tus simulaciones históricas, complementándose con el corpus biográfico. El modelo está diseñado para ser legible por humanos, procesable por LLMs como contexto y extensible.
-
-## **Estructura recomendada del modelo de datos**
-
-El formato recomendado es JSON Schema, por tres razones: es nativo para LLMs (fueron entrenados con enormes cantidades de JSON), soporta validación estructural, y puede inyectarse directamente en el system prompt. A continuación, la estructura de cuatro bloques:
-
-### **Bloque 1: Identidad y contexto histórico**
-
-Captura quién es el personaje en su mundo:
-
-```json
-{  "id": "cardinal_richelieu_1625",  "nombre": "Armand Jean du Plessis de Richelieu",  "nacimiento": 1585,  "muerte": 1642,  "contexto_historico": {    "epoca": "Francia del Ancien Régime",    "cargo": "Primer Ministro de Luis XIII",    "clase_social": "Nobleza eclesiástica"  },  "identidades_de_grupo": [    { "grupo": "Iglesia Católica", "rol": "Cardenal", "lealtad": 0.7 },    { "grupo": "Corona Francesa", "rol": "Servidor del Rey", "lealtad": 0.9 },    { "grupo": "Nobleza francesa", "rol": "Miembro", "lealtad": 0.5 }  ] }
+```
+v1.1/Impl/001/
+├── SYSTEM_PROMPT.md          # Referencia al system prompt de la versión
+├── Identity.json             # Identidad y contexto histórico
+├── Profile.json              # Perfil psicológico OCEAN
+├── Values.json               # Valores, necesidades, metas y conflictos
+├── Behavior.json             # Comportamiento y expresión situacional
+├── Memory.json               # Eventos formativos y de sesión
+├── Bundle.md                 # Exportación autocontenida (generada por el agente bundler)
+└── Archives/
+    ├── PublicLinks.md        # Recursos externos de referencia
+    └── Docs/                 # Fuentes primarias: cartas, documentos, discursos
 ```
 
-### **Bloque 2: Perfil de personalidad (Big Five)**
+El fichero `SYSTEM_PROMPT.md` de cada implementación no contiene el prompt directamente — apunta al prompt compartido de la versión en `v1.1/SYSTEM_PROMPT.md`. Esto garantiza que todas las implementaciones usan siempre la misma versión del prompt sin duplicación.
 
-Valores continuos de 0.0 a 1.0, con facetas opcionales para mayor granularidad:
+---
 
+## Descripción de cada fichero
+
+### Identity.json
+
+Define quién es el personaje: datos biográficos objetivos, su posición en el momento de la instancia y sus afiliaciones de grupo con nivel de lealtad.
+
+El campo `id` incluye el año de la instancia, no necesariamente el de nacimiento. Este año indica el momento vital en que se sitúa la simulación por defecto, y debe ser coherente con el estado de los demás ficheros — especialmente `Memory.json` y `necesidades_activas` en `Values.json`.
+
+Las `identidades_de_grupo` modelan la Teoría de la Identidad Social: cada grupo tiene un `rol` y un nivel de `lealtad` de 0.0 a 1.0. La lealtad no es declarada sino inferida del comportamiento: cuando dos grupos entraron en conflicto, ¿cuál prevaleció? Es el único campo de `Identity.json` que puede actualizarse durante una sesión mediante el comando `/Actualizar`.
+
+### Profile.json
+
+Contiene el perfil psicológico del personaje según el modelo OCEAN (Big Five). Cada rasgo es un valor continuo de 0.0 a 1.0:
+
+| Rasgo | 0.0 | 1.0 |
+|---|---|---|
+| `apertura` | Convencional, pragmático | Curioso, creativo, abierto |
+| `responsabilidad` | Impulsivo, desorganizado | Metódico, disciplinado |
+| `extraversion` | Reservado, introvertido | Sociable, asertivo |
+| `amabilidad` | Competitivo, escéptico | Empático, cooperativo |
+| `neuroticismo` | Calmado, resistente | Ansioso, reactivo |
+
+Las `facetas_notables` son rasgos cualitativos que matizan o contradicen lo que los valores numéricos podrían sugerir. Se usan para capturar paradojas documentadas o patrones que no encajan en un solo eje OCEAN.
+
+Los valores de Profile.json son los más estables del modelo — cambian muy lentamente en adultos y solo deberían actualizarse ante evidencia muy sostenida en sesión.
+
+### Values.json
+
+Es el núcleo del sistema de decisiones. Contiene cuatro elementos:
+
+**`valores_nucleares`** — jerarquía ordenada de principios motivacionales del personaje. Cada valor tiene una `prioridad` (1 = máxima) y `notas` que explican cómo lo interpreta el personaje. El orden importa: cuando dos valores entran en conflicto, el de mayor prioridad prevalece. Los valores nucleares corresponden a la Capa 1 de la jerarquía de decisiones y son los más resistentes al cambio.
+
+**`necesidades_activas`** — estado de satisfacción de necesidades psicológicas en el momento de la instancia, en escala de 0.0 a 1.0. No representan importancia abstracta sino urgencia actual: una necesidad cubierta tiene valor bajo aunque sea fundamental para el personaje. Corresponde a la Capa 2 de la jerarquía y puede cambiar con más frecuencia que los valores nucleares.
+
+**`metas_vitales`** — objetivos concretos que el personaje persigue activamente en su horizonte temporal. Corresponde a la Capa 3. Las metas ya alcanzadas en la fecha de la instancia deben aparecer en `Memory.json`, no aquí.
+
+**`conflictos_internos`** — tensiones documentadas entre valores o metas. Solo se incluyen conflictos con evidencia de tensión real — momentos en que el personaje dudó, actuó contra un valor declarado, o tuvo que elegir entre dos cosas que valoraba.
+
+### Behavior.json
+
+Define la expresión situacional de la personalidad: cómo se comporta el personaje en la práctica. Es la capa más observable — lo que un contemporáneo habría podido describir. Contiene:
+
+**`voz`** — subcampo exclusivo para información extraída de cartas y textos de producción directa del personaje. Si no hay material primario disponible, este campo se deja vacío. Incluye:
+- `registro`: nivel de formalidad y variaciones según el destinatario.
+- `recursos_retóricos`: patrones de argumentación y expresión recurrentes, con ejemplos extraídos de los textos.
+- `reaccion_ante_desacuerdo`: comportamiento cuando alguien le contradice, según se observa en su correspondencia.
+- `frases_o_expresiones_características`: fragmentos literales o paráfrasis muy cercanas extraídas de los textos originales.
+
+**`estilo_comunicativo`** — síntesis del tono y forma habitual, integrando `voz` con lo inferido de otras fuentes.
+
+**`manejo_del_conflicto`** — reacción ante tensión o confrontación, distinguiendo posición de fuerza de posición vulnerable.
+
+**`relaciones_interpersonales`** — red de confianza (con personas concretas cuando es posible) y actitud hacia subordinados.
+
+**`lineas_rojas`** — límites que el personaje nunca cruzó aunque tuvo oportunidad. Cada uno debería poder respaldarse con un momento documentado.
+
+**`sesgos_cognitivos`** — patrones sistemáticos de error o distorsión en la interpretación de la realidad. Deben ser específicos del personaje, no genéricos.
+
+### Memory.json
+
+Registro de eventos que han moldeado al personaje. Tiene dos tipos de eventos, distinguidos por el campo `type`:
+
+- `historical` — eventos anteriores al inicio de la simulación, que forman la memoria base del personaje. Se configuran al crear el personaje.
+- `user` — eventos generados durante una sesión con el comando `/Memoria`. Registran decisiones, interacciones o cambios relevantes ocurridos en el chat.
+
+Formato de cada evento:
 ```json
-"personalidad": {  "OCEAN": {    "apertura":        0.65,    "responsabilidad": 0.92,    "extraversion":    0.55,    "amabilidad":      0.28,    "neuroticismo":    0.35  },  "facetas_notables": [    "Maquiavélico en medios, idealista en fines",    "Alta tolerancia a la ambigüedad moral",    "Pragmatismo extremo ante la necesidad política"  ] }
+{
+  "type": "historical" | "user",
+  "date": "YYYY-MM-DD",
+  "event": "descripción en primera persona, desde la perspectiva del personaje"
+}
 ```
 
-### **Bloque 3: Jerarquía de valores y motivaciones**
+La selección de eventos históricos sigue el criterio de 2 de 3: cada evento debe cumplir al menos dos de estas condiciones: (1) el personaje tomó una decisión activa; (2) el evento tuvo consecuencias directas en su trayectoria; (3) revela o confirma algo de su perfil, valores o comportamiento.
 
-El corazón del sistema de decisiones. Los valores están ordenados por prioridad e incluyen posibles conflictos conocidos:
+### SYSTEM_PROMPT.md (de la versión)
 
-```json
-"valores_y_motivaciones": {  "valores_nucleares": [    { "valor": "Poder del Estado francés",   "prioridad": 1, "notas": "Fin último que justifica casi cualquier medio" },    { "valor": "Lealtad a la Corona",         "prioridad": 2, "notas": "Instrumental, no sentimental" },    { "valor": "Fe católica",                 "prioridad": 3, "notas": "Sincera pero subordinada a la razón de Estado" },    { "valor": "Supervivencia y poder propio","prioridad": 4, "notas": "Necesario para ejercer los anteriores" }  ],  "necesidades_activas": {    "seguridad": 0.6,    "poder_e_influencia": 0.95,    "reconocimiento": 0.75  },  "metas_vitales": [    "Centralizar el poder en la monarquía",    "Reducir el poder de la nobleza huguenote",    "Construir un legado duradero como estadista"  ],  "conflictos_internos": [    "Fe vs. alianzas con protestantes cuando conviene al Estado",    "Lealtad al Rey vs. necesidad de actuar con autonomía"  ] }
+El prompt operativo que gobierna el comportamiento del agente. Contiene:
+
+- **Misión**: instrucción de rol y referencia a cada fichero de configuración.
+- **Razonamiento**: cadena de 5 pasos que el agente ejecuta internamente antes de cada respuesta, sin mostrarla.
+- **Reglas de oro**: restricciones de comportamiento permanentes, incluyendo la gestión de la fecha activa y el tratamiento del anacronismo.
+- **Comandos**: acciones que rompen temporalmente el personaje para ejecutar una operación estructurada.
+
+La cadena de razonamiento mapea directamente sobre la jerarquía de decisiones del modelo:
+
+| Paso | Capa del modelo |
+|---|---|
+| 1. ¿Conflicto con valores nucleares? | Capa 1 — Valores |
+| 2. ¿Qué necesidades están en juego? | Capa 2 — Necesidades |
+| 3. ¿Cómo afecta a mis metas? | Capa 3 — Metas |
+| 4. ¿Cómo reaccionaría con mi personalidad? | Capa 4 — Disposiciones |
+| 5. ¿Cuál es mi respuesta más auténtica? | Capa 5 — Respuesta contextual |
+
+---
+
+## Comandos disponibles en sesión
+
+| Comando | Función |
+|---|---|
+| `/Memoria` | Extrae eventos relevantes del chat y los añade a la instancia de Memory.json como eventos de tipo `user`. |
+| `/Actualizar` | Propone cambios justificados en Profile, Behavior, Values o Identity (solo identidades_de_grupo), con evidencia de sesión explícita por cada cambio. |
+| `/Fecha <fecha>` | Establece la fecha activa del personaje. Solo considera eventos de Memory.json anteriores a esa fecha y ejecuta `/Actualizar` automáticamente. |
+| `/Instancia` | Muestra el estado actual de todos los ficheros de la instancia en memoria. |
+| `/Reiniciar` | Descarta la instancia en memoria y recarga los ficheros originales. |
+
+**Resistencia al cambio por capa.** No todos los campos evolucionan igual ante la evidencia de sesión. Los valores nucleares (Capa 1) requieren evidencia muy sólida y sostenida para cambiar. Las necesidades activas (Capa 2) pueden ajustarse con mayor facilidad. El perfil OCEAN cambia muy lentamente y solo ante patrones consistentes a lo largo de múltiples sesiones.
+
+---
+
+## Agentes disponibles
+
+| Agente | Fichero | Función |
+|---|---|---|
+| `character-configurator` | `.github/agents/character-configurator.agent.md` | Investiga un personaje y genera todos sus ficheros JSON a partir de fuentes en Archives y fuentes externas contrastadas. |
+| `character-v1` | `.github/agents/character-v1.agent.md` | Adopta la personalidad de un personaje definido en v1.1 y lo simula en conversación. |
+| `character-bundler` | `.github/agents/character-bundler.agent.md` | Genera un `Bundle.md` autocontenido para exportar el personaje a cualquier LLM externo (exportación de solo lectura). |
+
+### Flujo de trabajo típico
+
+```
+1. character-configurator  →  genera los ficheros JSON del personaje
+2. character-v1            →  simula el personaje en sesión
+3. /Memoria, /Actualizar   →  evoluciona la instancia durante la sesión
+4. character-bundler       →  exporta el personaje para uso en otros LLMs
 ```
 
-### **Bloque 4: Patrones de comportamiento y estilo**
+---
 
-Reglas y tendencias que guían la expresión situacional de la personalidad:
+## Fuentes y jerarquía de autoridad
 
-```json
-"comportamiento": {  "estilo_comunicativo": "Formal, indirecto, calculado. Raramente expresa opiniones sin calcular el efecto",  "manejo_del_conflicto": "Prefiere maniobras diplomáticas a la confrontación directa. Si cornered, implacable",  "relaciones_interpersonales": {    "confia_en": ["muy pocas personas cercanas, probadas con el tiempo"],    "actitud_hacia_subordinados": "Instrumental, pero reconoce y recompensa la competencia"  },  "lineas_rojas": [    "No traicionará al Rey directamente mientras sea políticamente viable",    "Nunca admitirá debilidad en público"  ],  "sesgos_cognitivos": [    "Tiende a interpretar las acciones ajenas en términos de interés político",    "Subestima el factor emocional en las decisiones de otros"  ] }
-```
+Al configurar un personaje, las fuentes en `Archives/Docs/` tienen prioridad sobre cualquier otra. Dentro de esas fuentes, la jerarquía de autoridad es:
 
-## **Cómo integrar este modelo con el corpus biográfico**
+1. **Cartas privadas y correspondencia personal** — mayor valor. Fuente principal para `Behavior.json` (especialmente `voz`) y facetas cualitativas de `Profile.json`.
+2. **Instrucciones, memorandos y documentos de trabajo propios** — alta autoridad. Fuente principal para `Values.json`.
+3. **Discursos y textos públicos firmados** — autoridad media-alta. Útiles para valores declarados; filtrar diferencia entre lo público y lo actuado.
+4. **Testimonios de contemporáneos** — autoridad media. Considerar la relación del testigo con el personaje.
+5. **Biografías y crónicas** — autoridad de contraste. Para contextualizar y verificar, no como fuente primaria de rasgos.
 
-El modelo de datos es la estructura; el corpus biográfico (cartas, discursos, memorias, biografías) es el contenido que lo rellena y valida. La integración recomendada es la siguiente:
+---
 
-- Nivel 1 — Extracción: usa un LLM para analizar el corpus y proponer valores iniciales para cada campo del JSON. Esto es un proceso asistido que requiere revisión humana.
-- Nivel 2 — Validación cruzada: contrasta los valores propuestos con evidencia biográfica concreta. Cada valor del JSON debería poder citarse con al menos una fuente primaria.
-- Nivel 3 — Inyección en contexto: el JSON completo se convierte en el system prompt del agente, junto con un extracto relevante del corpus (las cartas o textos más representativos del período simulado).
-- Nivel 4 — Memoria episódica: para simulaciones largas, los eventos de la conversación se añaden a una memoria vectorial que complementa el JSON estructurado con experiencias específicas.
+## Notas sobre el Bundle.md
 
-*La investigación de Park et al. (2024) confirma que un transcript biográfico completo en contexto supera a los agentes basados solo en descripciones demográficas o de rasgos. La combinación JSON + extractos biográficos + memoria episódica es el estado del arte.*
+El `Bundle.md` es una exportación de solo lectura generada por el agente `character-bundler`. Contiene el SYSTEM_PROMPT adaptado para uso sin ficheros externos, y todos los JSON del personaje limpios de campos `__comment`. Es el formato recomendado para usar el personaje en ChatGPT, Gemini u otros LLMs.
 
-## **Recomendaciones técnicas de implementación**
-
-**Formato de almacenamiento**
-
-JSON Schema con validación estricta es la opción óptima. Permite validar que el modelo está completo antes de inyectarlo, es directamente legible por el LLM, y puede versionarse en git. Para colecciones de personajes, una base de datos de documentos como MongoDB o PostgreSQL con soporte JSONB es adecuada.
-
-**Inyección en el LLM**
-
-El modelo de datos debe incluirse íntegro en el system prompt, precedido de instrucciones que indiquen al LLM cómo interpretarlo. La estructura recomendada del system prompt es:
-
-- Sección 1: Instrucción de rol («Eres [nombre]. Adopta este personaje completamente. Tu personalidad, valores y decisiones deben ser coherentes con el siguiente perfil»)
-- Sección 2: El JSON del personaje, con cada bloque claramente etiquetado.
-- Sección 3: Extracto biográfico seleccionado (cartas, discursos propios del período).
-- Sección 4: Instrucciones de restricción temporal («Solo tienes conocimiento de eventos hasta [fecha]. Si se te pregunta sobre algo posterior, reacciona con la perspectiva de tu época»).
-
-**Modelo de datos para la jerarquía de decisiones en tiempo de inferencia**
-
-Para que el LLM tome decisiones coherentes ante dilemas, se puede añadir un paso de razonamiento explícito en cadena (chain-of-thought) que recorra las cinco capas antes de generar la respuesta:
-
-Antes de responder a esta situación, razona internamente: 1. ¿Esta acción entra en conflicto con mis valores nucleares? (Capa 1) 2. ¿Qué necesidades mías están en juego en este momento? (Capa 2) 3. ¿Cómo afecta esta acción a mis metas vitales? (Capa 3) 4. ¿Cómo reaccionaría típicamente alguien con mi personalidad? (Capa 4) 5. Dada la situación concreta, ¿cuál es mi respuesta más auténtica? (Capa 5)
-
-**Herramientas y frameworks recomendados**
-
-| **Componente** | **Herramienta recomendada** | **Alternativa** |
-| --- | --- | --- |
-| Almacenamiento de personajes | PostgreSQL + JSONB | MongoDB |
-| Memoria episódica | Vector DB (Pinecone, Weaviate, pgvector) | ChromaDB (local) |
-| Orquestación del agente | LangChain / LlamaIndex | Código propio con Anthropic API |
-| Modelo base | Claude Sonnet 4 / GPT-4o | Llama 3.3 70B (local) |
-| Validación del JSON | JSON Schema + Pydantic | Zod (TypeScript) |
-| Versionado de personajes | Git + archivos .json | Notion / Airtable |
-
-## **Advertencias y límites del sistema**
-
-Es importante ser consciente de las limitaciones conocidas antes de confiar plenamente en el sistema:
-
-- Deriva de carácter: en conversaciones largas, los LLMs tienden a suavizar los rasgos extremos y converger hacia un perfil más «agradable». Solución: incluir recordatorios periódicos del perfil en el contexto.
-- Anachronismo involuntario: el LLM puede introducir perspectivas modernas aunque el personaje no las tendría. Las «Protective Experiences» del método Character-LLM y las instrucciones explícitas de restricción temporal ayudan.
-- Coherencia vs. sorpresa: un perfil muy rígido puede hacer al personaje predecible. Los valores de Schwartz modelan bien la tensión interna que genera comportamientos inesperados pero explicables a posteriori.
-- Validación: no existe aún una métrica estándar para evaluar la «fidelidad histórica» de una simulación. Se recomienda un protocolo de evaluación mixto: test de escenarios históricos documentados + revisión experta.
-
-## **Hoja de ruta de implementación**
-
-Para un proyecto de simulación histórica, recomendamos la siguiente secuencia:
-
-- Fase 1 — Piloto (1-2 meses): Define un personaje bien documentado. Construye el JSON manualmente a partir del corpus biográfico. Implementa el sistema de prompts en capas. Evalúa con 20-30 escenarios históricos conocidos.
-- Fase 2 — Extracción asistida (2-4 meses): Desarrolla un pipeline que use el LLM para proponer borradores del JSON a partir del corpus, con revisión humana. Construye la biblioteca de personajes.
-- Fase 3 — Memoria episódica (3-6 meses): Integra una base de datos vectorial para memoria a largo plazo. Implementa el razonamiento en cadena de cinco capas como rutina estándar.
-- Fase 4 — Evaluación y refinamiento continuo: Protocolo de evaluación con historiadores o expertos. Iteración del modelo de datos basada en los errores detectados.
-
-## **Conclusiones**
-
-El estado actual de la psicología y la IA ofrece herramientas sólidas para construir agentes que simulen personalidades históricas de forma coherente. El punto clave es que ningún marco único es suficiente: la personalidad necesita el Big Five para describir el cómo, los valores de Schwartz para explicar el por qué, la jerarquía de necesidades para capturar el ahora, y el modelo BDI para estructurar el proceso de decisión.
-
-La investigación más reciente confirma que el corpus biográfico en contexto es el factor más determinante de la fidelidad de la simulación, superando a las descripciones de rasgos abstractas. Tu enfoque de combinar un modelo de datos estructurado con material biográfico está alineado con el estado del arte.
-
-El modelo de datos propuesto en cuatro bloques (Identidad, Personalidad OCEAN, Valores y Motivaciones, Comportamiento) ofrece una base formal que el LLM puede interpretar directamente, mientras que la arquitectura de decisión en cinco capas proporciona el marco para que las respuestas del agente sean coherentes con la lógica interna del personaje, no solo con la superficie de su historia.
+**Limitaciones del Bundle:** el personaje no evolucionará durante la sesión en el LLM de destino. Los comandos `/Memoria`, `/Actualizar` y `/Fecha` no están disponibles. Para sesiones con evolución, usar el entorno PerSSim original con el agente `character-v1`.
