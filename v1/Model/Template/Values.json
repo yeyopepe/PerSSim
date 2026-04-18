@@ -1,30 +1,30 @@
 {
-    "__comment": "Fichero de valores y motivaciones. Define el núcleo del sistema de decisiones del personaje: qué valora, qué necesita, qué quiere lograr y dónde experimenta conflictos internos.",
+    "__comment": "Fichero de valores y motivaciones. Es el núcleo del sistema de decisiones del personaje: explica el POR QUÉ de sus acciones. Trabájalo en tres fases: (1) identifica los valores, (2) ordénalos por prioridad, (3) completa necesidades, metas y conflictos. No empieces a asignar prioridades hasta tener el inventario completo de valores.",
 
     "valores_y_motivaciones": {
 
         "valores_nucleares": [
             {
-                "__comment": "Cada objeto representa un valor fundamental del personaje, ordenados por prioridad (1 = más importante).",
+                "__comment": "FASE 1 — Identificación: lista todos los valores que el personaje expresó o demostró con sus acciones. Incluye los declarados explícitamente (en cartas, discursos, testimonios) y los inferidos de sus decisiones bajo presión. Cuando ambos tipos entren en contradicción, el valor inferido tiene más peso — las acciones revelan más que las palabras. FASE 2 — Ordenación: para establecer la prioridad, aplica el test de conflicto: 'cuando el valor A entró en conflicto directo con el valor B, ¿cuál prevaleció?'. Cada posición en la jerarquía debería poder justificarse con al menos un evento documentado. El campo 'notas' debe explicar cómo el personaje interpreta o aplica ese valor — no qué es el valor en abstracto.",
                 "valor": "__comment: Nombre del valor o principio rector. Ejemplo: Poder del Estado francés",
-                "prioridad": "__comment: Posición en la jerarquía de valores (número entero, 1 = máxima prioridad). Ejemplo: 1",
-                "notas": "__comment: Explicación de cómo el personaje interpreta o aplica este valor. Ejemplo: Fin último que justifica casi cualquier medio"
+                "prioridad": "__comment: Posición en la jerarquía (número entero, 1 = máxima prioridad). Ejemplo: 1",
+                "notas": "__comment: Cómo interpreta o aplica el personaje este valor. Ejemplo: Fin último que justifica casi cualquier medio"
             }
         ],
 
         "necesidades_activas": {
-            "__comment": "Necesidades psicológicas del personaje, de 0.0 (inexistente) a 1.0 (dominante). Añade o elimina campos según las necesidades relevantes del personaje.",
-            "seguridad": "__comment: Necesidad de estabilidad y protección ante amenazas. Ejemplo: 0.6",
+            "__comment": "Necesidades psicológicas en el momento vital de la instancia, no en abstracto. Una necesidad que ya está cubierta tiene valor bajo aunque sea importante para el personaje. Una necesidad amenazada o insatisfecha tiene valor alto. Añade o elimina campos según las necesidades relevantes del personaje — los tres de ejemplo no son los únicos posibles. Escala de 0.0 (inexistente o cubierta) a 1.0 (dominante y urgente).",
+            "seguridad": "__comment: Necesidad de estabilidad y protección ante amenazas físicas, políticas o sociales. Ejemplo: 0.6",
             "poder_e_influencia": "__comment: Necesidad de controlar el entorno y las decisiones de otros. Ejemplo: 0.95",
-            "reconocimiento": "__comment: Necesidad de ser valorado, respetado o admirado. Ejemplo: 0.75"
+            "reconocimiento": "__comment: Necesidad de ser valorado, respetado o admirado por otros. Ejemplo: 0.75"
         },
 
         "metas_vitales": [
-            "__comment: Lista de objetivos a largo plazo que el personaje persigue activamente. Ejemplo: Centralizar el poder en la monarquía"
+            "__comment: Objetivos concretos que el personaje persigue activamente en el horizonte temporal de la instancia. Deben ser específicos y realizables desde su perspectiva — no aspiraciones abstractas. Si una meta ya estaba lograda en la fecha de la instancia, no la incluyas aquí; ponla en Memory.json como evento relevante. Ejemplo: Centralizar el poder en la monarquía"
         ],
 
         "conflictos_internos": [
-            "__comment: Lista de tensiones entre valores o metas que generan dilemas en el personaje. Ejemplo: Fe vs. alianzas con protestantes cuando conviene al Estado"
+            "__comment: Tensiones entre valores o metas que generan dilemas reales en el personaje. Solo incluye conflictos con evidencia documentada de tensión — momentos en que el personaje dudó, actuó contra uno de sus valores declarados, o tuvo que elegir entre dos cosas que valoraba. Un conflicto bien definido tiene dos polos nombrados y un contexto que los activa. Ejemplo: Fe vs. alianzas con protestantes cuando conviene al Estado"
         ]
     }
 }
