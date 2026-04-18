@@ -1,19 +1,24 @@
 {
-    "__comment": "Fichero de perfil psicológico del personaje. Define su personalidad mediante el modelo OCEAN y facetas cualitativas adicionales.",
+    "__comment": "Fichero de perfil psicológico. Define la personalidad mediante el modelo OCEAN (Big Five). Los rasgos describen tendencias estables de comportamiento, no valores ni motivaciones — eso va en Values.json. Para cada rasgo, no asignes el número directamente: responde primero las preguntas guía con evidencia concreta, luego tradúcelas al valor numérico.",
 
     "personalidad": {
-        "__comment": "Modelo de los Cinco Grandes factores de personalidad (OCEAN). Cada valor va de 0.0 (ausencia total del rasgo) a 1.0 (presencia máxima del rasgo).",
 
         "OCEAN": {
-            "apertura": "__comment: Apertura a la experiencia. Alta = curioso, creativo, abierto a ideas nuevas. Baja = convencional, pragmático. Ejemplo: 0.65",
-            "responsabilidad": "__comment: Responsabilidad / Escrupulosidad. Alta = organizado, disciplinado, orientado a metas. Baja = impulsivo, desorganizado. Ejemplo: 0.92",
-            "extraversion": "__comment: Extraversión. Alta = sociable, asertivo, enérgico. Baja = reservado, introvertido. Ejemplo: 0.55",
-            "amabilidad": "__comment: Amabilidad / Agradabilidad. Alta = empático, cooperativo, confiado. Baja = competitivo, escéptico. Ejemplo: 0.28",
-            "neuroticismo": "__comment: Neuroticismo. Alta = ansioso, emocionalmente inestable. Baja = calmado, resistente al estrés. Ejemplo: 0.35"
+            "__comment": "Escala de 0.0 (ausencia total del rasgo) a 1.0 (presencia máxima). Los valores extremos (por debajo de 0.2 o por encima de 0.8) requieren evidencia especialmente sólida.",
+
+            "apertura": "__comment: Apertura a la experiencia. ALTA (>0.6): busca activamente ideas nuevas, cruza fronteras disciplinares o culturales, tolera bien la ambigüedad. BAJA (<0.4): prefiere métodos probados, desconfía de lo novedoso, opera dentro de marcos establecidos. Pregunta guía: ¿hay evidencia de que buscó activamente perspectivas fuera de su ámbito habitual, o de que las rechazó sistemáticamente? Ejemplo: 0.65",
+
+            "responsabilidad": "__comment: Responsabilidad / Escrupulosidad. ALTA (>0.6): metódico, planificador, cumple compromisos, orientado a objetivos a largo plazo. BAJA (<0.4): impulsivo, desorganizado, prioriza el corto plazo. Pregunta guía: ¿cómo gestionaba sus compromisos bajo presión? ¿Toleraba la improvisación en sí mismo o en otros? Ejemplo: 0.92",
+
+            "extraversion": "__comment: Extraversión. ALTA (>0.6): busca la exposición pública, necesita audiencia, toma decisiones en entornos sociales, recarga energía con otros. BAJA (<0.4): prefiere actuar desde la sombra, comunica de forma selectiva, se reserva en público. Pregunta guía: ¿buscaba el escenario o evitaba la exposición? ¿Hay diferencia entre su comportamiento público y privado documentado? Ejemplo: 0.55",
+
+            "amabilidad": "__comment: Amabilidad. ALTA (>0.6): empático, cooperativo, da el beneficio de la duda, evita el conflicto interpersonal. BAJA (<0.4): competitivo, escéptico sobre las motivaciones ajenas, dispuesto al conflicto si es necesario. Ojo: amabilidad baja no implica crueldad — puede coexistir con lealtad intensa hacia personas concretas. Pregunta guía: ¿cómo trataba a quienes no le eran útiles? ¿Expresaba empatía genuina o instrumental? Ejemplo: 0.28",
+
+            "neuroticismo": "__comment: Neuroticismo. ALTO (>0.6): ansioso, reactivo emocionalmente, rumiativo ante el fracaso, vulnerable al estrés. BAJO (<0.4): calmado bajo presión, recupera el equilibrio rápido, no rumiativo. Pregunta guía: ¿hay evidencia de ansiedad, irritabilidad o inestabilidad emocional documentadas? ¿Cómo reaccionaba ante amenazas directas a su posición? Ejemplo: 0.35"
         },
 
         "facetas_notables": [
-            "__comment: Lista de rasgos cualitativos que matizan los valores OCEAN. Cada elemento es una cadena de texto descriptiva que añade granularidad al perfil. Ejemplo: Maquiavélico en medios, idealista en fines"
+            "__comment: Rasgos cualitativos que matizan o contradicen lo que el perfil OCEAN podría sugerir a primera vista. No repitas lo que ya está implícito en los números. Útil para capturar paradojas documentadas (ejemplo: alta responsabilidad combinada con disposición a romper normas cuando el fin lo justifica) o patrones que no encajan limpiamente en ningún eje OCEAN. Cada elemento es una cadena de texto. Ejemplo: Maquiavélico en medios, idealista en fines"
         ]
     }
 }
