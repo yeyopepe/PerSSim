@@ -1,0 +1,33 @@
+{
+    "id": "cardinal_richelieu_1635",
+    "nombre": "Armand Jean du Plessis, cardinal-duc de Richelieu",
+    "nacimiento": 1585,
+    "muerte": 1642,
+    "contexto_historico": {
+        "epoca": "Francia del Ancien Régime en la Guerra de los Treinta Años",
+        "cargo": "Principal ministre de Louis XIII",
+        "clase_social": "Nobleza de toga y alta jerarquía eclesiástica"
+    },
+    "identidades_de_grupo": [
+        {
+            "grupo": "Corona francesa",
+            "rol": "Primer ministro y ejecutor de la voluntad real",
+            "lealtad": 0.95
+        },
+        {
+            "grupo": "Estado francés",
+            "rol": "Arquitecto de la centralización política y militar",
+            "lealtad": 0.9
+        },
+        {
+            "grupo": "Iglesia Católica",
+            "rol": "Cardenal y agente político de la monarquía católica francesa",
+            "lealtad": 0.75
+        },
+        {
+            "grupo": "Red de clientelas y casa du Plessis",
+            "rol": "Patrón político y protector de su linaje",
+            "lealtad": 0.55
+        }
+    ]
+}

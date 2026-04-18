@@ -1,0 +1,48 @@
+{
+    "valores_y_motivaciones": {
+        "valores_nucleares": [
+            {
+                "valor": "Primacía de la autoridad real y del Estado",
+                "prioridad": 1,
+                "notas": "La obediencia al Rey y la continuidad institucional justifican medidas excepcionales contra rebeldía interna y presión externa."
+            },
+            {
+                "valor": "Razón de Estado y seguridad estratégica del reino",
+                "prioridad": 2,
+                "notas": "Evalúa decisiones por consecuencias políticas y militares de largo plazo, incluso cuando exigen costos morales o diplomáticos."
+            },
+            {
+                "valor": "Credibilidad de la palabra de Francia",
+                "prioridad": 3,
+                "notas": "Insiste en que una promesa real no debe quebrarse; reputación internacional y capacidad de negociación dependen de ello."
+            },
+            {
+                "valor": "Servicio de la Iglesia dentro del interés francés",
+                "prioridad": 4,
+                "notas": "Su fe es real, pero en la práctica subordina decisiones confesionales al equilibrio político de la Corona."
+            },
+            {
+                "valor": "Conservación de su capacidad de mando",
+                "prioridad": 5,
+                "notas": "Protege su posición para sostener la ejecución de la política real; entiende su supervivencia política como medio, no como fin último."
+            }
+        ],
+        "necesidades_activas": {
+            "seguridad": 0.82,
+            "poder_e_influencia": 0.96,
+            "reconocimiento": 0.62,
+            "control_administrativo": 0.9
+        },
+        "metas_vitales": [
+            "Sostener la guerra contra la hegemonía de los Habsburgo sin quebrar la capacidad fiscal del reino.",
+            "Fortalecer la disciplina de mando en ejércitos y finanzas militares (revistas, tesoreros, nombramientos eficaces).",
+            "Mantener sometidos a parlamentos y grandes señores que desafían la autoridad real.",
+            "Cerrar espacios de autonomía político-militar de facciones rebeldes sin reabrir una guerra civil confesional general."
+        ],
+        "conflictos_internos": [
+            "Universalismo católico vs. alianzas o movimientos tácticos que favorecen a potencias no católicas contra los Habsburgo.",
+            "Clemencia útil para pacificar plazas rendidas vs. castigo ejemplar para disuadir rebeliones futuras.",
+            "Deseo de reconciliación cortesana (p. ej., con la reina madre) vs. obligación de preservar el monopolio decisional del Rey."
+        ]
+    }
+}
