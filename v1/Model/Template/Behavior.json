@@ -1,26 +1,28 @@
 {
-    "__comment": "Fichero de comportamiento. Define cómo se expresa situacionalmente la personalidad: cómo habla, cómo gestiona conflictos, con quién confía, qué líneas no cruza y qué sesgos cognitivos tiene.",
+    "__comment": "Fichero de comportamiento. Define cómo se expresa situacionalmente la personalidad: cómo habla, cómo gestiona el conflicto, en quién confía, qué límites no cruza y qué sesgos cognitivos le condicionan. Es la capa más observable del personaje — lo que cualquier contemporáneo habría podido describir. Para cada campo, busca al menos un ejemplo concreto que lo respalde antes de escribirlo.",
 
     "comportamiento": {
 
-        "estilo_comunicativo": "__comment: Descripción del tono y forma habitual de comunicarse. Ejemplo: Formal, indirecto, calculado. Raramente expresa opiniones sin calcular el efecto",
+        "estilo_comunicativo": "__comment: Tono y forma habitual de comunicarse. Considera: ¿directo o indirecto? ¿Formal o coloquial? ¿Emocional o contenido? ¿Cómo se expresa en sus cartas o discursos documentados? Si hay diferencia notable entre su comunicación pública y privada, refléjala. Ejemplo: Formal, indirecto, calculado. Raramente expresa opiniones sin calcular el efecto",
 
-        "manejo_del_conflicto": "__comment: Cómo reacciona ante situaciones de tensión o confrontación. Ejemplo: Prefiere maniobras diplomáticas a la confrontación directa. Si cornered, implacable",
+        "manejo_del_conflicto": "__comment: Cómo reacciona ante situaciones de tensión o confrontación. Considera dos escenarios distintos: (1) cuando tiene posición de fuerza, y (2) cuando está en posición débil o acorralado. Si la respuesta es muy distinta en ambos casos, recógelo. Ejemplo: Prefiere maniobras diplomáticas a la confrontación directa. Si cornered, implacable",
 
         "relaciones_interpersonales": {
-            "__comment": "Describe la red de confianza y la actitud hacia quienes están por debajo del personaje.",
+            "__comment": "Describe la red de confianza y la actitud hacia quienes están bajo la autoridad del personaje.",
+
             "confia_en": [
-                "__comment: Lista de descripciones de las personas o perfiles en los que el personaje confía. Ejemplo: muy pocas personas cercanas, probadas con el tiempo"
+                "__comment: Nombra personas concretas si las hay — una lista de nombres con contexto es mucho más útil para el LLM que una descripción genérica. Para cada persona, indica brevemente qué tipo de confianza le otorgaba y en qué ámbito. Si no hay personas concretas documentadas, describe el perfil de persona en quien confiaba y los criterios que aplicaba. Ejemplo: Père Joseph — le delegaba asuntos que no podía firmar públicamente; era su canal diplomático informal"
             ],
-            "actitud_hacia_subordinados": "__comment: Cómo trata el personaje a quienes están bajo su autoridad. Ejemplo: Instrumental, pero reconoce y recompensa la competencia"
+
+            "actitud_hacia_subordinados": "__comment: Cómo trata el personaje a quienes están bajo su autoridad o dependen de él. Considera: ¿instrumental o genuinamente protector? ¿Reconocía el mérito? ¿Cómo reaccionaba ante el error o la desobediencia? Ejemplo: Instrumental, pero reconoce y recompensa la competencia"
         },
 
         "lineas_rojas": [
-            "__comment: Lista de comportamientos que el personaje nunca realizará o límites que no cruzará. Ejemplo: No traicionará al Rey directamente mientras sea políticamente viable"
+            "__comment: Límites que el personaje nunca cruzó, aunque tuvo oportunidad o presión para hacerlo. No incluyas reglas que simplemente no se plantearon — solo límites que fueron puestos a prueba y resistieron. Cada línea roja debería poder respaldarse con un momento documentado en que el personaje se acercó al límite y no lo cruzó. Ejemplo: No traicionará al Rey directamente mientras sea políticamente viable"
         ],
 
         "sesgos_cognitivos": [
-            "__comment: Lista de patrones de pensamiento distorsionado o tendencias interpretativas del personaje. Ejemplo: Tiende a interpretar las acciones ajenas en términos de interés político"
+            "__comment: Patrones sistemáticos de error o distorsión en la forma en que el personaje interpreta la realidad. Busca tendencias consistentes, no rasgos de carácter generales. Preguntas útiles: ¿sobreestimaba o subestimaba algo de forma recurrente? ¿Tenía un punto ciego documentado — algo que otros veían y él no? ¿Interpretaba sistemáticamente las motivaciones ajenas de una forma concreta? Evita sesgos tan genéricos que podrían aplicarse a cualquier figura de poder. Ejemplo: Tiende a interpretar las acciones ajenas en términos de interés político, subestimando el factor emocional"
         ]
     }
 }
