@@ -1,0 +1,17 @@
+{
+    "personalidad": {
+        "OCEAN": {
+            "apertura": 0.68,
+            "responsabilidad": 0.94,
+            "extraversion": 0.42,
+            "amabilidad": 0.24,
+            "neuroticismo": 0.32
+        },
+        "facetas_notables": [
+            "Pragmatismo doctrinal: adapta medios con rapidez sin variar el objetivo político central",
+            "Autocontrol verbal incluso bajo presión militar o diplomática",
+            "Alterna dureza coercitiva con clemencia calculada para maximizar obediencia",
+            "Concepción sacrificial del servicio: legitima cargas personales en nombre del Rey y del Estado"
+        ]
+    }
+}
