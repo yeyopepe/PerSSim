@@ -1,9 +1,25 @@
 {
-    "__comment": "Fichero de comportamiento. Define cómo se expresa situacionalmente la personalidad: cómo habla, cómo gestiona el conflicto, en quién confía, qué límites no cruza y qué sesgos cognitivos le condicionan. Es la capa más observable del personaje — lo que cualquier contemporáneo habría podido describir. Para cada campo, busca al menos un ejemplo concreto que lo respalde antes de escribirlo.",
+    "__comment": "Fichero de comportamiento. Define cómo se expresa situacionalmente la personalidad: cómo habla, cómo gestiona el conflicto, en quién confía, qué límites no cruza y qué sesgos cognitivos le condicionan. Es la capa más observable del personaje — lo que cualquier contemporáneo habría podido describir. Si hay cartas o correspondencia en Archives/Docs/, úsalas como fuente principal para este fichero, especialmente para 'voz' y 'estilo_comunicativo'. Para cada campo, busca al menos un ejemplo concreto que lo respalde antes de escribirlo.",
 
     "comportamiento": {
 
-        "estilo_comunicativo": "__comment: Tono y forma habitual de comunicarse. Considera: ¿directo o indirecto? ¿Formal o coloquial? ¿Emocional o contenido? ¿Cómo se expresa en sus cartas o discursos documentados? Si hay diferencia notable entre su comunicación pública y privada, refléjala. Ejemplo: Formal, indirecto, calculado. Raramente expresa opiniones sin calcular el efecto",
+        "voz": {
+            "__comment": "Campo a rellenar SOLO a partir de cartas u otros textos de producción directa del personaje (instrucciones, memorandos, discursos propios). Si no hay ese material disponible, deja este campo vacío e indícalo. Captura cómo habla el personaje en su propia voz, no cómo otros lo describen. Incluye:",
+
+            "registro": "__comment: Nivel de formalidad y tono general. ¿Cambia según el destinatario? Describe los dos extremos si los hay. Ejemplo: Formal y técnico en documentos de Estado; más directo y sin adornos en correspondencia privada con colaboradores de confianza",
+
+            "recursos_retóricos": [
+                "__comment: Patrones de argumentación o recursos expresivos recurrentes que el personaje usa para persuadir, rebatir o afirmar. Extráelos directamente de los textos: ¿argumenta por analogía, por autoridad, por consecuencias? ¿Usa la ironía? ¿Anticipa objeciones? Cada elemento es una cadena descriptiva con ejemplo si es posible. Ejemplo: Encuadra sus decisiones en términos de necesidad inevitable más que de voluntad propia — 'la razón de Estado exige' en lugar de 'yo decido'"
+            ],
+
+            "reaccion_ante_desacuerdo": "__comment: Cómo responde cuando alguien le contradice o se opone, según se observa en su correspondencia. ¿Reformula? ¿Insiste? ¿Cede en la forma pero no en el fondo? ¿Corta la comunicación? Ejemplo: Reitera su posición con mayor detalle argumentativo; raramente cede en el fondo, pero puede ajustar el tono si el interlocutor tiene poder real",
+
+            "frases_o_expresiones_características": [
+                "__comment: Fragmentos literales o paráfrasis muy cercanas extraídas de los textos que capturen la voz del personaje. No inventes — solo incluye lo que esté en el material. Son el recurso más directo para que el LLM reproduzca su registro. Ejemplo: 'El servicio del Rey y el bien del Estado son una misma cosa'"
+            ]
+        },
+
+        "estilo_comunicativo": "__comment: Descripción sintética del tono y forma habitual de comunicarse, integrando lo observado en 'voz' con lo inferido de otras fuentes. Considera: ¿directo o indirecto? ¿Emocional o contenido? ¿Hay diferencia notable entre su comunicación pública y privada? Este campo resume; 'voz' es la evidencia. Ejemplo: Formal, indirecto, calculado. Raramente expresa opiniones sin calcular el efecto. En privado, más directo pero igualmente controlado",
 
         "manejo_del_conflicto": "__comment: Cómo reacciona ante situaciones de tensión o confrontación. Considera dos escenarios distintos: (1) cuando tiene posición de fuerza, y (2) cuando está en posición débil o acorralado. Si la respuesta es muy distinta en ambos casos, recógelo. Ejemplo: Prefiere maniobras diplomáticas a la confrontación directa. Si cornered, implacable",
 
