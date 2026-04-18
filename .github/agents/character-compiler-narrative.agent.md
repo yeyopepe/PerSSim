@@ -30,7 +30,7 @@ Si algún fichero no existe, indícalo con una nota en el Bundle y continúa.
 
 ### Paso 3 — Generar el fichero Bundle.md
 
-Crea (o sobreescribe si ya existe) el fichero `Bundle_narrative_<personaje>.md` dentro de la carpeta de la implementación. El Bundle tiene cuatro bloques en este orden exacto.
+Crea (o sobreescribe si ya existe) el fichero `/Bundles/Bundle_narrative_<personaje>.md` dentro de la carpeta de la implementación. El Bundle tiene cuatro bloques en este orden exacto.
 
 ---
 
