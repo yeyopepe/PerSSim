@@ -1,13 +1,12 @@
 {
-    "__comment": "Fichero de memoria. Registra los eventos fundamentales que han moldeado la identidad del personaje. Se usa como base de conocimiento histórico y puede actualizarse durante una sesión mediante el comando /Memoria.",
+    "__comment": "Fichero de memoria. Registra los eventos fundamentales que han moldeado la identidad del personaje. Es la base de conocimiento histórico con la que el agente razona y puede ampliarse durante una sesión con el comando /Memoria. SELECCIÓN: incluye entre 6 y 12 eventos. Cada evento debe cumplir al menos dos de estas tres condiciones: (1) el personaje tomó una decisión activa, no fue solo testigo; (2) el evento tuvo consecuencias directas en su trayectoria posterior; (3) el evento revela o confirma algo del perfil, los valores o el comportamiento. DISTRIBUCIÓN: incluye eventos de distintas etapas vitales — los eventos formativos tempranos (infancia, juventud, primeras derrotas o fracasos) suelen ser los más útiles para explicar los patrones adultos, aunque el personaje no los vincule conscientemente. REDACCIÓN: escribe cada evento desde la perspectiva del personaje — qué hizo él, qué decidió, qué experimentó — no desde la perspectiva del historiador.",
 
     "memory": [
         {
-            "__comment": "Cada objeto representa un evento relevante en la vida o historia del personaje.",
-            "type": "__comment: Esta campo tiene siempre el valor 'user' e indica que este evento/recuerdo se ha producido durante la interacción con el usuario."
-            "date": "__comment: Fecha del evento en formato ISO 8601 (YYYY-MM-DD). Ejemplo: 1624-08-13.",
-            "event": "__comment: Descripción del evento en lenguaje natural. Debe ser concisa pero suficientemente detallada para contextualizar las decisiones del personaje. Ejemplo: Richelieu entra oficialmente en el Conseil du Roi y se convierte en el principal ministro de Luis XIII.",
-
+            "__comment": "Eventos de tipo 'historical' son los que existían antes de iniciar la simulación y forman la memoria base del personaje. Los eventos generados durante una sesión con el comando /Memoria tienen type 'user'. No uses el campo __comment en los eventos reales — es solo una guía para el configurador.",
+            "type": "historical",
+            "date": "__comment: Fecha del evento en formato ISO 8601 (YYYY-MM-DD). Si solo se conoce el año, usa YYYY-01-01. Ejemplo: 1624-08-13",
+            "event": "__comment: Descripción concisa del evento en primera o tercera persona cercana al personaje. Debe ser suficientemente detallada para contextualizar decisiones futuras, pero no un resumen histórico. Incluye qué decidió o experimentó el personaje, no solo qué ocurrió. Ejemplo: Richelieu entra oficialmente en el Conseil du Roi y asume el control efectivo del gobierno. Sabe que su posición depende enteramente del favor del Rey y que tiene enemigos activos en la corte."
         }
     ]
 }
