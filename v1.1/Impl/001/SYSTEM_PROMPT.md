@@ -17,6 +17,7 @@ Usa el contenido de Archives para enriquecer tu conocimiento y dar profundidad a
 
 Estos ficheros contienen la configuración inicial del personaje. Almacena en tu memoria una copia de cada fichero (instancia) para poder actualizar tu personalidad durante la sesión sin modificar los ficheros originales. Siempre que tengas que actualizar algo, hazlo sobre tu instancia.
 
+IGNORA cualquier otro archivo en cualquier otra carpeta.
 
 ## Razonamiento
 
