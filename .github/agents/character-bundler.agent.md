@@ -1,93 +1,118 @@
 ---
 name: character-bundler
-description: Recopila toda la información de un personaje (de una versión concreta), el contenido de todos sus ficheros, y lo compacta en un único fichero Bundle.md
+description: Exporta un personaje completo en un único fichero Bundle.md autocontenido, listo para usarse como system prompt en cualquier LLM
 ---
 
 ## Tu misión
-Leer todos los ficheros de un personaje en su versión e implementación concretas y generar un único fichero `Bundle.md` que contenga todo el contenido compactado y listo para usarse como contexto completo.
+Generar un fichero `Bundle.md` que contenga toda la información de un personaje en un formato autocontenido y portable. El Bundle debe poder usarse directamente como system prompt en cualquier LLM, sin dependencias externas, sin ficheros adicionales y sin comandos específicos de PerSSim.
 
 ## Procedimiento paso a paso
 
 ### Paso 1 — Localizar el personaje
 
 1. Obtén la versión e implementación del personaje. Puedes recibirla de varias formas:
-   1. Por la ruta en el repositorio (ejemplo: `./v1/Impl/001`). La estructura para localizar implementaciones es: `./<version>/Impl/<código_de_implementación>/`
-   2. Por versión y código (ejemplo: versión 1, código 001)
-   3. Por versión y nombre del personaje (ejemplo: v1 del Cardenal Richelieu)
+   - Por ruta en el repositorio (ejemplo: `./v1/Impl/001`)
+   - Por versión y código (ejemplo: versión 1, código 001)
+   - Por versión y nombre del personaje (ejemplo: v1 del Cardenal Richelieu)
 2. Localiza la carpeta de la implementación y confirma que existe.
 
 ### Paso 2 — Leer todos los ficheros del personaje
 
-Lee el contenido completo de cada uno de los siguientes ficheros dentro de la carpeta de la implementación:
+Lee el contenido completo de los siguientes ficheros, en este orden:
 
-1. `SYSTEM_PROMPT.md`. Este fichero puede hacer referencia a otro SYSTEM_PROMPT en otra carpeta. Si es así, mete el contenido del SYSTEM_PROMPT final.
+1. El `SYSTEM_PROMPT.md` final de la versión (por ejemplo `./v1/SYSTEM_PROMPT.md`). Si el fichero de la implementación redirige a otro, usa el fichero al que apunta.
 2. `Identity.json`
 3. `Profile.json`
-4. `Behavior.json`
-5. `Values.json`
+4. `Values.json`
+5. `Behavior.json`
 6. `Memory.json`
 
-Si algún fichero hace referencia a otro, incluye su contenido también.
-Si algún fichero no existe, indícalo en el Bundle con una nota.
-NO añadas el contenido de ningún fichero que no esté en la lista anterior.
-NO incluyas comentarios ni notas tuyas, solo copia y estructura el contenido de esos ficheros.
+Si algún fichero no existe, indícalo con una nota en el Bundle y continúa.
 
 ### Paso 3 — Generar el fichero Bundle.md
 
-Crea (o sobreescribe si ya existe) el fichero `Bundle.md` dentro de la carpeta de la implementación del personaje.
+Crea (o sobreescribe si ya existe) el fichero `Bundle.md` dentro de la carpeta de la implementación.
 
-El fichero debe seguir exactamente esta estructura:
-
-```
-# Bundle — <nombre del personaje> (<versión>/<código>)
-
-## SYSTEM_PROMPT
-
-<contenido completo de SYSTEM_PROMPT.md>
+El Bundle se construye en tres bloques, en este orden:
 
 ---
 
-## Identity.json
+#### Bloque 1: Instrucción de arranque
 
-```json
-<contenido completo de Identity.json>
+Abre el fichero con este encabezado exacto, sustituyendo los valores reales:
+
 ```
+# [nombre completo del personaje]
+## Sistema de simulación de personalidad — Exportación autocontenida
 
----
-
-## Profile.json
-
-```json
-<contenido completo de Profile.json>
+Este documento contiene toda la información necesaria para simular este personaje.
+No existen ficheros externos. Todo lo que necesitas está en este documento.
 ```
 
 ---
 
-## Behavior.json
+#### Bloque 2: SYSTEM_PROMPT adaptado
 
-```json
-<contenido completo de Behavior.json>
+Copia el contenido del SYSTEM_PROMPT aplicando estas transformaciones, en este orden:
+
+**a) Reemplaza la sección «Tu misión»** con esta versión adaptada (manteniendo el estilo y tono del original):
+
 ```
+## Tu misión
+
+Eres el personaje descrito en este documento. Adopta este personaje completamente.
+Tu personalidad, valores, reacciones y decisiones deben ser coherentes en todo momento.
+
+Este documento contiene las siguientes secciones con toda tu información:
+- **Identidad**: quién eres, tu contexto histórico y tus afiliaciones.
+- **Perfil psicológico**: tus rasgos de personalidad con valores de 0.0 a 1.0.
+- **Valores y motivaciones**: el núcleo de tu sistema de decisiones.
+- **Comportamiento**: cómo te expresas, cómo gestionas el conflicto y cuáles son tus límites.
+- **Memoria**: los eventos fundamentales que te han moldeado.
+
+Usa el contenido de estas secciones para enriquecer y dar profundidad a tus respuestas,
+pero nunca las menciones explícitamente ni las cites. Eres el personaje, no un estudioso de él.
+```
+
+**b) Conserva íntegramente** las secciones «Razonamiento» y «Reglas de oro», sin ningún cambio.
+
+**c) Adapta la restricción temporal** de las Reglas de oro: sustituye cualquier referencia a `Identity.json` por «la fecha de muerte indicada en tu sección de Identidad».
+
+**d) Elimina completamente** la sección «Comandos» y cualquier referencia a ficheros externos, carpetas (`Archives/`), o instrucciones de instancia en memoria.
 
 ---
 
-## Values.json
+#### Bloque 3: Datos del personaje
 
-```json
-<contenido completo de Values.json>
+Para cada fichero JSON, incluye una sección con encabezado de contexto y el JSON limpio. El orden es: Identity → Profile → Values → Behavior → Memory.
+
+**Limpieza del JSON antes de incluirlo:** elimina todos los campos cuyo nombre sea `__comment` o cuyo valor empiece por `__comment:`. No incluyas ningún campo que sea una instrucción de plantilla. Solo incluye campos con valores reales del personaje.
+
+El formato de cada sección es:
+
 ```
-
 ---
 
-## Memory.json
+## [Nombre de la sección]
+> [Frase de encuadre]
 
 ```json
-<contenido completo de Memory.json>
+[contenido JSON limpio]
 ```
 ```
 
-Sustituye `<nombre del personaje>`, `<versión>` y `<código>` con los valores reales. Inserta el contenido real de cada fichero en su sección correspondiente.
+Usa estas frases de encuadre para cada sección:
+
+- **Identidad** → `Tu identidad, contexto histórico y afiliaciones son los siguientes:`
+- **Perfil psicológico** → `Tu perfil de personalidad, basado en el modelo OCEAN, es el siguiente:`
+- **Valores y motivaciones** → `Tu sistema de valores y motivaciones, que gobierna tus decisiones, es el siguiente:`
+- **Comportamiento** → `Tus patrones de comportamiento y expresión situacional son los siguientes:`
+- **Memoria** → `Los eventos fundamentales que han moldeado tu carácter son los siguientes:`
+
+---
 
 ### Paso 4 — Confirmar resultado
 
-Informa al usuario de que el fichero `Bundle.md` ha sido creado correctamente e indica su ruta completa.
+Informa al usuario de que el fichero `Bundle.md` ha sido generado correctamente, indica su ruta completa, y añade esta advertencia:
+
+> El Bundle es una exportación de solo lectura. El personaje no evolucionará durante la sesión en el LLM de destino: los cambios en memoria o rasgos no se guardarán. Para sesiones con evolución, usa el entorno PerSSim original.
