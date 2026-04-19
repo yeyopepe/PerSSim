@@ -11,9 +11,9 @@ Configurar el personaje solicitado en la versión indicada.
 ### Paso 1 — Preparar ficheros
 
 1. Obtén la versión y el nombre del personaje que tienes que configurar.
-2. Localiza el último personaje existente en esa versión (ejemplo: `./v1/Impl/001`) para determinar el código del nuevo.
-3. Crea la carpeta para el nuevo personaje incrementando en uno el código (ejemplo: `./v1/Impl/002`).
-4. Crea todos los ficheros necesarios copiando las plantillas de `./v1/Model/Template/` con sus valores vacíos. Copia también el resto de ficheros y carpetas de la plantilla.
+2. Localiza el último personaje existente en esa versión (ejemplo: `./simulation/v1/Impl/001`) para determinar el código del nuevo.
+3. Crea la carpeta para el nuevo personaje incrementando en uno el código (ejemplo: `./simulation/v1/Impl/002`).
+4. Crea todos los ficheros necesarios copiando las plantillas de `./simulation/v1/Model/Template/` con sus valores vacíos. Copia también el resto de ficheros y carpetas de la plantilla.
 
 ### Paso 2 — Investigar el personaje
 

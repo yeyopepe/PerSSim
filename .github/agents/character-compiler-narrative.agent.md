@@ -11,7 +11,7 @@ Generar un fichero `Bundle.md` autocontenido para usar el personaje en cualquier
 ### Paso 1 — Localizar el personaje
 
 1. Obtén la versión e implementación del personaje:
-   - Por ruta (ejemplo: `./v1.1/Impl/001`)
+   - Por ruta (ejemplo: `./simulation/v1.1/Impl/001`)
    - Por versión y código (ejemplo: versión 1.1, código 001)
    - Por versión y nombre (ejemplo: v1.1 del Cardenal Richelieu)
 2. Localiza la carpeta y confirma que existe.
@@ -19,7 +19,7 @@ Generar un fichero `Bundle.md` autocontenido para usar el personaje en cualquier
 ### Paso 2 — Leer todos los ficheros del personaje
 
 Lee en este orden:
-1. El `SYSTEM_PROMPT.md` final de la versión (por ejemplo `./v1.1/SYSTEM_PROMPT.md`).
+1. El `SYSTEM_PROMPT.md` final de la versión (por ejemplo `./simulation/v1.1/SYSTEM_PROMPT.md`).
 2. `Identity.json`
 3. `Profile.json`
 4. `Values.json`

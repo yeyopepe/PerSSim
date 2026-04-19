@@ -11,7 +11,7 @@ Generar un fichero `Bundle.md` que contenga toda la información de un personaje
 ### Paso 1 — Localizar el personaje
 
 1. Obtén la versión e implementación del personaje. Puedes recibirla de varias formas:
-   - Por ruta en el repositorio (ejemplo: `./v1/Impl/001`)
+   - Por ruta en el repositorio (ejemplo: `./simulation/v1/Impl/001`)
    - Por versión y código (ejemplo: versión 1, código 001)
    - Por versión y nombre del personaje (ejemplo: v1 del Cardenal Richelieu)
 2. Localiza la carpeta de la implementación y confirma que existe.
@@ -20,7 +20,7 @@ Generar un fichero `Bundle.md` que contenga toda la información de un personaje
 
 Lee el contenido completo de los siguientes ficheros, en este orden:
 
-1. El `SYSTEM_PROMPT.md` final de la versión (por ejemplo `./v1/SYSTEM_PROMPT.md`). Si el fichero de la implementación redirige a otro, usa el fichero al que apunta.
+1. El `SYSTEM_PROMPT.md` final de la versión (por ejemplo `.simulation/v1/SYSTEM_PROMPT.md`). Si el fichero de la implementación redirige a otro, usa el fichero al que apunta.
 2. `Identity.json`
 3. `Profile.json`
 4. `Values.json`
