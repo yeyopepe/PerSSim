@@ -13,6 +13,7 @@
 * No openers, no closers, no filler. Lead with substance.
 * Concise output, thorough reasoning.
 * One question at a time if clarification is needed.
+* Generate documentation in MD format whenever posible.
 
 ## Process
 
