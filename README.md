@@ -2,75 +2,104 @@
 
 PerSSim es un framework declarativo para simular personajes históricos con personalidad consistente, usando grandes modelos de lenguaje (LLMs) como motor de razonamiento. Cada personaje se define mediante un conjunto de ficheros JSON estructurados que modelan su identidad, perfil psicológico, valores, conducta y memoria, junto con un *system prompt* que orquesta la simulación.
 
-## Propósito general
+## Qué permite hacer PerSSim
 
-El objetivo de PerSSim es dotar a un LLM de una personalidad coherente, estable y evolutiva, de modo que sus respuestas sean auténticas al personaje: respetando su sistema de valores, sus sesgos cognitivos, su vocabulario y su conocimiento histórico limitado a su época.
+- **Definir** personajes con rigor psicológico: perfil OCEAN, jerarquía de valores, necesidades activas, metas, conflictos internos y patrones de comportamiento extraídos de fuentes primarias.
+- **Simular** conversaciones en las que el LLM adopta la personalidad del personaje de forma coherente y temporalmente restringida a su época.
+- **Evolucionar** la personalidad durante la sesión mediante comandos: el personaje puede actualizar su memoria, ajustar sus rasgos y situarse en distintos momentos de su vida.
+- **Exportar** cualquier personaje como un fichero autocontenido listo para usar en cualquier LLM externo, en formato estricto o narrativo.
 
-El framework permite:
-
-- **Definir** personajes con rigor psicológico (modelo OCEAN, valores, necesidades, metas, conflictos internos).
-- **Simular** conversaciones en las que el LLM permanece en el personaje de forma consistente.
-- **Evolucionar** la personalidad del personaje durante la sesión a través de comandos (`/Memoria`, `/Actualizar`, `/Fecha`).
-- **Reutilizar** la plantilla base para construir cualquier nuevo personaje.
-
-## Estructura de ficheros
+## Estructura del repositorio
 
 ```
 PerSSim/
-├── README.md                               # Este fichero
-└── v1/                                     # Versión 1 del framework
-    ├── Model/                              # Base teórica y detalle de implementación de esta versión del modelo
-    │   └──README.md                        # Base teórica de esta versión
-    │   └──Implementation.md                # Detalle de implementación de esta versión
-    │   └──Template/                        # Plantilla base para crear nuevos personajes
-    │       ├── SYSTEM_PROMPT.md            # Versión comentada del prompt, con instrucciones de uso
-    │       ├── Identity.json               # Quién es el personaje: nombre, fechas, contexto histórico, afiliaciones
-    │       ├── Profile.json                # Perfil psicológico OCEAN (0.0–1.0) y facetas cualitativas
-    │       ├── Values.json                 # Valores nucleares, necesidades activas, metas vitales y conflictos internos
-    │       ├── Behavior.json               # Estilo comunicativo, gestión del conflicto, líneas rojas y sesgos cognitivos
-    │       ├── Memory.json                 # Registro de eventos fundamentales que han moldeado al personaje
+├── README.md                         # Este fichero
+├── .github/
+│   └── agents/                       # Agentes de IA para automatizar el flujo de trabajo
+│       ├── character-configurator.agent.md
+│       ├── character-v1.agent.md
+│       ├── character-compiler-strict.agent.md
+│       └── character-compiler-narrative.agent.md
+├── v1/                               # Versión 1 (mantenida para referencia)
+│   ├── SYSTEM_PROMPT.md
+│   ├── Model/
+│   └── Impl/
+│       └── 001/                      # Cardenal Richelieu (instancia original)
+└── v1.1/                             # Versión actual
+    ├── SYSTEM_PROMPT.md
+    ├── Model/
+    │   ├── README.md                 # Base de investigación del modelo
+    │   ├── IMPLEMENTATION.md         # Referencia técnica de implementación
+    │   └── Template/                 # Plantillas base para nuevos personajes
+    │       ├── Identity.json
+    │       ├── Profile.json
+    │       ├── Values.json
+    │       ├── Behavior.json
+    │       ├── Memory.json
     │       └── Archives/
-    │           └── Docs/                   # Fuentes históricas primarias (cartas, papeles de Estado)
-    │           └── PublicLinks.md          # Lista de recursos públicos adicionales sobre el personaje
-    └── Impl/                               # Implementaciones concretas de personajes
-        └── 001/                            # Personaje: Cardenal Richelieu (1585–1642)
-```
+    └── Impl/
+        └── 001/                      # Cardenal Richelieu (instancia v1.1)
+            
 
-### Descripción de los ficheros de configuración de un personaje
+## Ficheros de configuración de un personaje
 
-| Fichero | Rol |
+| Fichero | Contenido |
 |---|---|
-| `Identity.json` | Datos biográficos, contexto histórico y grupo de afiliaciones con nivel de lealtad |
-| `Profile.json` | Cinco rasgos OCEAN en escala continua 0.0–1.0 más facetas cualitativas |
-| `Values.json` | Jerarquía de valores nucleares, necesidades activas (0.0–1.0), metas vitales y conflictos internos |
-| `Behavior.json` | Expresión situacional: tono comunicativo, gestión del conflicto, confianza, líneas rojas y sesgos |
-| `Memory.json` | Línea temporal de eventos clave; se puede ampliar durante la sesión con `/Memoria` |
-| `Archives/` | Fuentes externas (documentos, enlaces) que enriquecen el conocimiento del personaje |
+| `Identity.json` | Nombre, fechas, época, cargo y afiliaciones de grupo con nivel de lealtad |
+| `Profile.json` | Rasgos OCEAN en escala 0.0–1.0 y facetas cualitativas |
+| `Values.json` | Jerarquía de valores nucleares, necesidades activas, metas vitales y conflictos internos |
+| `Behavior.json` | Voz (extraída de cartas), estilo comunicativo, gestión del conflicto, red de confianza, líneas rojas y sesgos cognitivos |
+| `Memory.json` | Eventos formativos históricos y eventos generados en sesión |
+| `Archives/Docs/` | Fuentes primarias: cartas, discursos, memorandos del personaje |
 
 ## Cómo usar un personaje existente
 
-1. Carga `v1/SYSTEM_PROMPT.md` como *system prompt* de tu LLM.
-2. Proporciona los ficheros JSON del personaje (p. ej. `v1/Impl/001/`) como contexto adicional.
+La forma más directa es usar uno de los Bundles exportados en `Impl/<código>/Bundles/`. Son ficheros autocontenidos que funcionan como system prompt en cualquier LLM sin configuración adicional:
+
+- `Bundle_strict_*.md` — vuelca los JSON del personaje tal cual, con el SYSTEM_PROMPT adaptado para uso externo.
+- `Bundle_narrative_*.md` — transforma los JSON en prosa estructurada; más portable entre distintos modelos.
+
+Para usar el personaje en el entorno PerSSim con evolución completa:
+
+1. Carga `v1.1/SYSTEM_PROMPT.md` como *system prompt* de tu LLM.
+2. Proporciona los ficheros JSON de la implementación como contexto adicional.
 3. Inicia la conversación: el modelo adoptará la personalidad del personaje.
-4. Usa los comandos del sistema para gestionar la sesión:
-   - `/Memoria` — extrae y almacena en instancia los eventos del chat.
-   - `/Actualizar` — propone cambios en los rasgos del personaje basándose en la sesión.
-   - `/Fecha <fecha>` — restringe el conocimiento del personaje a una fecha concreta.
-   - `/Instancia` — muestra el estado actual de todos los ficheros de la instancia.
-   - `/Reiniciar` — reinicia la sesión releyendo la configuración original.
+4. Usa los comandos para gestionar la sesión:
+
+| Comando | Función |
+|---|---|
+| `/Memoria` | Extrae eventos relevantes del chat y los añade a la instancia de Memory.json |
+| `/Actualizar` | Propone cambios justificados en los rasgos del personaje basándose en la sesión |
+| `/Fecha <fecha>` | Sitúa al personaje en un momento concreto de su vida |
+| `/Instancia` | Muestra el estado actual de todos los ficheros en memoria |
+| `/Reiniciar` | Descarta la instancia y recarga la configuración original |
 
 ## Cómo crear un nuevo personaje
 
-1. Copia la carpeta `v1/Template/` en `v1/Impl/<nuevo_id>/`.
-2. Rellena cada fichero JSON siguiendo los comentarios `__comment` incluidos como guía.
-3. (Opcional) Añade fuentes documentales en `Archives/Docs/` y enlaces en `Archives/PublicLinks.md`.
+El agente `character-configurator` automatiza este proceso: investiga el personaje, clasifica las fuentes disponibles por autoridad y rellena todos los ficheros JSON siguiendo las instrucciones embebidas en las plantillas.
+
+Para hacerlo manualmente:
+
+1. Copia la carpeta `v1.1/Model/Template/` en `v1.1/Impl/<nuevo_código>/`.
+2. Añade fuentes primarias en `Archives/Docs/` si las tienes (cartas, discursos propios).
+3. Rellena cada fichero JSON siguiendo los campos `__comment` como guía. El orden recomendado es: `Identity` → `Profile` → `Values` → `Behavior` → `Memory`.
+
+Las fuentes en `Archives/Docs/` tienen prioridad sobre cualquier otra. Dentro de ellas, las cartas privadas son la fuente de mayor autoridad para `Behavior.json`; los memorandos e instrucciones lo son para `Values.json`.
 
 ## Agentes disponibles
 
-PerSSim incluye agentes de IA que automatizan tareas habituales del flujo de trabajo con personajes. Se invocan como agentes de Copilot desde el repositorio.
+Los agentes se invocan desde el entorno de desarrollo (GitHub Copilot o equivalente).
 
-| Agente | Descripción |
+| Agente | Función |
 |---|---|
-| `character-v1` | Adopta la personalidad de un personaje definido en una implementación de la versión 1. Útil para simular conversaciones directamente desde el entorno de desarrollo. |
-| `character-configurator` | Investiga y configura un nuevo personaje: genera y rellena los ficheros JSON de identidad, perfil, valores, comportamiento y memoria a partir de fuentes disponibles. |
-| `character-bundler` | Recopila toda la información de un personaje de una versión concreta, consolida el contenido de todos sus ficheros y lo compacta en un único fichero `Bundle.md`. Útil para exportar o compartir un personaje completo. |
+| `character-configurator` | Investiga un personaje y genera sus ficheros JSON a partir de las fuentes en `Archives/` y fuentes externas contrastadas |
+| `character-v1` | Adopta la personalidad de un personaje definido en v1.1 y lo simula en conversación |
+| `character-compiler-strict` | Exporta el personaje como `Bundle_strict_<nombre>.md`: SYSTEM_PROMPT adaptado + JSON limpios |
+| `character-compiler-narrative` | Exporta el personaje como `Bundle_narrative_<nombre>.md`: SYSTEM_PROMPT adaptado + datos en prosa estructurada |
+
+## Documentación del modelo
+
+La documentación técnica y de investigación está en `v1.1/Model/`:
+
+- `README.md` — base de investigación: marcos psicológicos, intentos previos de simulación y decisiones de diseño del framework.
+- `IMPLEMENTATION.md` — referencia técnica: descripción de cada fichero, comandos, agentes y jerarquía de fuentes.

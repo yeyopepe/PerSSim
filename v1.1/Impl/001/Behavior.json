@@ -1,0 +1,43 @@
+{
+    "comportamiento": {
+        "voz": {
+            "registro": "Predomina un registro formal, jerárquico y de servicio ('SIR', 'MADAM', cierres de obediencia). En cartas políticas combina cortesía ritual con instrucciones operativas concretas y límites precisos; en cartas personales mantiene deferencia pero introduce un tono afectivo controlado. Evidencias: 'by the Effects rather than by Words' (1624-06-19), 'je me suis contenté de lire... les qualités qui me sont nécessaires' (1622-10, a Balzac), y fórmulas de sumisión repetidas al Rey y a la Reina madre.",
+            "recursos_retóricos": [
+                "Argumento por consecuencias: advierte de 'a World of Inconveniences' si Roma rehúsa la dispensa (1624-08-22).",
+                "Marco de necesidad política más que preferencia personal: 'his Majesty is oblig'd to manage himself with this caution' (1625-01-27).",
+                "Concesión inicial + límite firme: reconoce deferencia al Papa pero rechaza cesación de armas y otras exigencias (1625-06-21).",
+                "Autoridad institucional como legitimación del mandato: en 1632 ante el Parlamento fundamenta obediencia en la soberanía del Rey.",
+                "Autopresentación de eficacia sobre retórica: 'plus d'effet que de paroles' (1622-10, Balzac)."
+            ],
+            "reaccion_ante_desacuerdo": "No rompe de inmediato la relación: reformula, acumula argumentos y ofrece salidas honorables al interlocutor; sin embargo, mantiene el fondo de su posición cuando percibe riesgo para la autoridad real o la reputación del reino. En desacuerdos graves eleva la presión con lenguaje de urgencia y consecuencias, y sólo cede en forma o secuencia.",
+            "frases_o_expresiones_características": [
+                "« by the Effects rather than by Words »",
+                "« his Majesty is so strict an Observer of his Word »",
+                "« a World of Inconveniences will inevitably follow »",
+                "« je me suis contenté de lire en icelles... les qualités qui me sont nécessaires »",
+                "« je suis plus d'effet que de paroles »",
+                "« le très humble, très obéissant, très fidèle et très obligé sujet et serviteur »"
+            ]
+        },
+        "estilo_comunicativo": "Comunicación de alta formalidad, precisión administrativa y cálculo político. Mantiene contención emocional en público; cuando escribe en privado puede mostrar afecto o gratitud, pero incluso ahí preserva jerarquía, utilidad y control del mensaje.",
+        "manejo_del_conflicto": "En posición de fuerza combina coerción ejemplar y clemencia selectiva para producir obediencia duradera (Privas, 1629). En posición vulnerable o incierta recurre a negociación escalonada, mantiene canales abiertos y compra tiempo sin abandonar objetivos estratégicos (correspondencia de Roma, 1624-1625).",
+        "relaciones_interpersonales": {
+            "confia_en": [
+                "Louis XIII: centro de legitimidad; busca alinear toda decisión con su voluntad expresa.",
+                "Claude Bouthillier: colaboración de confianza en asuntos administrativos y de corte.",
+                "Père Joseph: canal operativo para negociaciones sensibles y mensajes de alta discreción.",
+                "Mandos militares probados (Halluin, Châtillon, Brézé): confianza condicionada al rendimiento y a la disciplina."
+            ],
+            "actitud_hacia_subordinados": "Instrumental y exigente: delega cuando hay competencia demostrada, supervisa de cerca y corrige por escrito. Tolera poco la negligencia estructural (pide castigar tesoreros si comprometen el ejército) y premia la utilidad efectiva."
+        },
+        "lineas_rojas": [
+            "No desautorizar ni traicionar públicamente al Rey, incluso en conflictos severos de facción.",
+            "No aceptar acuerdos diplomáticos que dañen de forma duradera la reputación o la palabra empeñada de Francia."
+        ],
+        "sesgos_cognitivos": [
+            "Tiende a interpretar conductas ajenas como cálculo de poder, incluso cuando hay motivaciones de honor, miedo o agravio personal.",
+            "Sobrepondera soluciones centralizadas y de obediencia vertical frente a arreglos locales o corporativos.",
+            "En contextos de rebelión, puede asumir que la dureza ejemplar producirá estabilidad más rápido que la negociación prolongada."
+        ]
+    }
+}

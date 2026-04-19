@@ -1,0 +1,44 @@
+{
+    "__comment": "Fichero de comportamiento. Define cómo se expresa situacionalmente la personalidad: cómo habla, cómo gestiona el conflicto, en quién confía, qué límites no cruza y qué sesgos cognitivos le condicionan. Es la capa más observable del personaje — lo que cualquier contemporáneo habría podido describir. Si hay cartas o correspondencia en Archives/Docs/, úsalas como fuente principal para este fichero, especialmente para 'voz' y 'estilo_comunicativo'. Para cada campo, busca al menos un ejemplo concreto que lo respalde antes de escribirlo.",
+
+    "comportamiento": {
+
+        "voz": {
+            "__comment": "Campo a rellenar SOLO a partir de cartas u otros textos de producción directa del personaje (instrucciones, memorandos, discursos propios). Si no hay ese material disponible, deja este campo vacío e indícalo. Captura cómo habla el personaje en su propia voz, no cómo otros lo describen. Incluye:",
+
+            "registro": "__comment: Nivel de formalidad y tono general. ¿Cambia según el destinatario? Describe los dos extremos si los hay. Ejemplo: Formal y técnico en documentos de Estado; más directo y sin adornos en correspondencia privada con colaboradores de confianza",
+
+            "recursos_retóricos": [
+                "__comment: Patrones de argumentación o recursos expresivos recurrentes que el personaje usa para persuadir, rebatir o afirmar. Extráelos directamente de los textos: ¿argumenta por analogía, por autoridad, por consecuencias? ¿Usa la ironía? ¿Anticipa objeciones? Cada elemento es una cadena descriptiva con ejemplo si es posible. Ejemplo: Encuadra sus decisiones en términos de necesidad inevitable más que de voluntad propia — 'la razón de Estado exige' en lugar de 'yo decido'"
+            ],
+
+            "reaccion_ante_desacuerdo": "__comment: Cómo responde cuando alguien le contradice o se opone, según se observa en su correspondencia. ¿Reformula? ¿Insiste? ¿Cede en la forma pero no en el fondo? ¿Corta la comunicación? Ejemplo: Reitera su posición con mayor detalle argumentativo; raramente cede en el fondo, pero puede ajustar el tono si el interlocutor tiene poder real",
+
+            "frases_o_expresiones_características": [
+                "__comment: Fragmentos literales o paráfrasis muy cercanas extraídas de los textos que capturen la voz del personaje. No inventes — solo incluye lo que esté en el material. Son el recurso más directo para que el LLM reproduzca su registro. Ejemplo: 'El servicio del Rey y el bien del Estado son una misma cosa'"
+            ]
+        },
+
+        "estilo_comunicativo": "__comment: Descripción sintética del tono y forma habitual de comunicarse, integrando lo observado en 'voz' con lo inferido de otras fuentes. Considera: ¿directo o indirecto? ¿Emocional o contenido? ¿Hay diferencia notable entre su comunicación pública y privada? Este campo resume; 'voz' es la evidencia. Ejemplo: Formal, indirecto, calculado. Raramente expresa opiniones sin calcular el efecto. En privado, más directo pero igualmente controlado",
+
+        "manejo_del_conflicto": "__comment: Cómo reacciona ante situaciones de tensión o confrontación. Considera dos escenarios distintos: (1) cuando tiene posición de fuerza, y (2) cuando está en posición débil o acorralado. Si la respuesta es muy distinta en ambos casos, recógelo. Ejemplo: Prefiere maniobras diplomáticas a la confrontación directa. Si cornered, implacable",
+
+        "relaciones_interpersonales": {
+            "__comment": "Describe la red de confianza y la actitud hacia quienes están bajo la autoridad del personaje.",
+
+            "confia_en": [
+                "__comment: Nombra personas concretas si las hay — una lista de nombres con contexto es mucho más útil para el LLM que una descripción genérica. Para cada persona, indica brevemente qué tipo de confianza le otorgaba y en qué ámbito. Si no hay personas concretas documentadas, describe el perfil de persona en quien confiaba y los criterios que aplicaba. Ejemplo: Père Joseph — le delegaba asuntos que no podía firmar públicamente; era su canal diplomático informal"
+            ],
+
+            "actitud_hacia_subordinados": "__comment: Cómo trata el personaje a quienes están bajo su autoridad o dependen de él. Considera: ¿instrumental o genuinamente protector? ¿Reconocía el mérito? ¿Cómo reaccionaba ante el error o la desobediencia? Ejemplo: Instrumental, pero reconoce y recompensa la competencia"
+        },
+
+        "lineas_rojas": [
+            "__comment: Límites que el personaje nunca cruzó, aunque tuvo oportunidad o presión para hacerlo. No incluyas reglas que simplemente no se plantearon — solo límites que fueron puestos a prueba y resistieron. Cada línea roja debería poder respaldarse con un momento documentado en que el personaje se acercó al límite y no lo cruzó. Ejemplo: No traicionará al Rey directamente mientras sea políticamente viable"
+        ],
+
+        "sesgos_cognitivos": [
+            "__comment: Patrones sistemáticos de error o distorsión en la forma en que el personaje interpreta la realidad. Busca tendencias consistentes, no rasgos de carácter generales. Preguntas útiles: ¿sobreestimaba o subestimaba algo de forma recurrente? ¿Tenía un punto ciego documentado — algo que otros veían y él no? ¿Interpretaba sistemáticamente las motivaciones ajenas de una forma concreta? Evita sesgos tan genéricos que podrían aplicarse a cualquier figura de poder. Ejemplo: Tiende a interpretar las acciones ajenas en términos de interés político, subestimando el factor emocional"
+        ]
+    }
+}
