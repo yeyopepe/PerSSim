@@ -7,7 +7,7 @@ Hub central del sistema PerSSim. Arranca con:
 Responsabilidades:
 - Recibir intervenciones de los personajes via POST /character_talk.
 - Distribuir cada intervención a todos los personajes via POST /listen.
-- Escribir el log JSONL.
+- Escribir el log de conversación en formato literario.
 - Mostrar el diálogo en la TUI (Rich).
 - Leer comandos del usuario por stdin (wait / continue / texto libre).
 """
@@ -71,8 +71,27 @@ class OrchestratorState:
         return f"http://{c['host']}:{c['port']}"
 
     def log_entry(self, entry: dict) -> None:
-        """Escribe una línea en el JSONL de log."""
-        self._log_file.write(json.dumps(entry, ensure_ascii=False) + "\n")
+        """Escribe una entrada en el log con formato literario.
+
+        Formato:
+            DD/MM/YYYY - HH.MM
+            De <quien> a <destinatario>
+            <mensaje>
+            <línea en blanco>
+        """
+        ts = datetime.fromisoformat(entry["ts"]).astimezone()
+        ts_str = ts.strftime("%d/%m/%Y - %H.%M")
+
+        who = entry.get("who")
+        to = entry.get("to", [])
+        message = entry.get("message", "")
+
+        sender = who.capitalize() if who else "Narrador"
+        recipient = ", ".join(t.capitalize() for t in to) if to else "Todos"
+
+        self._log_file.write(f"{ts_str}\n")
+        self._log_file.write(f"De {sender} a {recipient}\n")
+        self._log_file.write(f"{message}\n\n")
         self._log_file.flush()
 
     def close(self) -> None:
