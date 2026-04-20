@@ -2,7 +2,7 @@
 
 Cada instancia representa un único personaje histórico. Se arranca con:
 
-    python -m persim.char --config ./chars/richelieu.json
+    python -m persim.char --config ./chars/richelieu.config.json
 
 Endpoints:
     POST /listen    – recibe intervención/narración del orquestador
@@ -372,7 +372,7 @@ def main() -> None:
     import argparse
 
     parser = argparse.ArgumentParser(description="Servidor de personaje PerSSim")
-    parser.add_argument("--config", required=True, help="Ruta al fichero char.json")
+    parser.add_argument("--config", required=True, help="Ruta al fichero char.config.json")
     parser.add_argument("--log-level", default="INFO")
     args = parser.parse_args()
 

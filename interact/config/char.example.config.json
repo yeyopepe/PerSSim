@@ -6,6 +6,5 @@
   "orchestrator_host": "http://localhost:5000",
   "port": 5001,
   "wait_min_seconds": 30,
-  "wait_max_seconds": 120,
-  "_deprecated": "RENAMED: use char.example.config.json instead"
+  "wait_max_seconds": 120
 }

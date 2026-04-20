@@ -38,14 +38,14 @@ El código fuente (paquete Python `persim-interact`) se añadirá en esta carpet
 ```bash
 pip install persim-interact
 
-persim-launch --session ./session.json
+persim-launch --session ./session.config.json
 ```
 
 Ver [`docs/install.md`](docs/install.md) para la configuración completa.
 
 ## Relación con Simulation
 
-Interact consume los Bundles exportados por el subsistema [`simulation/`](../simulation/README.md). Cada personaje en la sesión apunta a su Bundle en `char.json`:
+Interact consume los Bundles exportados por el subsistema [`simulation/`](../simulation/README.md). Cada personaje en la sesión apunta a su Bundle en `char.config.json`:
 
 ```json
 {

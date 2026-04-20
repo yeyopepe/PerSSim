@@ -1,12 +1,12 @@
 """Launcher de sesión PerSSim (persim-launch).
 
-Lee session.json, arranca el orquestador y los personajes como subprocesos
+Lee session.config.json, arranca el orquestador y los personajes como subprocesos
 independientes, espera a que todos los puertos estén listos y envía la
 situación inicial.
 
 Uso:
-    persim-launch --session ./session.json
-    persim-launch --session ./session.json --log-level DEBUG
+    persim-launch --session ./session.config.json
+    persim-launch --session ./session.config.json --log-level DEBUG
 """
 
 from __future__ import annotations
@@ -179,7 +179,7 @@ async def run(session_path: str, log_level: str) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Lanzador de sesión PerSSim")
-    parser.add_argument("--session", required=True, help="Ruta al fichero session.json")
+    parser.add_argument("--session", required=True, help="Ruta al fichero session.config.json")
     parser.add_argument("--log-level", default="INFO")
     args = parser.parse_args()
 

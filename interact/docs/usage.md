@@ -7,12 +7,12 @@
 Con la configuración preparada según la [Guía de instalación](install.md):
 
 ```bash
-persim-launch --session ./session.json
+persim-launch --session ./session.config.json
 ```
 
 El iniciador realizará automáticamente:
 
-1. Leer `session.json` y validar la configuración.
+1. Leer `session.config.json` y validar la configuración.
 2. Levantar un proceso `CharXXX` por cada personaje definido.
 3. Levantar el proceso Orquestador.
 4. Esperar a que todos los puertos estén listos (health-check).
@@ -23,7 +23,7 @@ El iniciador realizará automáticamente:
 
 | Opción | Descripción |
 |---|---|
-| `--session PATH` | Ruta al fichero `session.json`. Requerido. |
+| `--session PATH` | Ruta al fichero `session.config.json`. Requerido. |
 | `--init DIR` | Crea un directorio de sesión con ficheros de ejemplo. No lanza la sesión. |
 | `--port INT` | Puerto del orquestador. Por defecto: 5000. |
 | `--no-tui` | Lanza sin interfaz de terminal. Útil para pruebas o scripting. |
@@ -138,7 +138,7 @@ tiempo.
 
 ## El fichero de log
 
-Cada sesión genera un fichero JSONL en la ruta indicada en `session.json`:
+Cada sesión genera un fichero JSONL en la ruta indicada en `session.config.json`:
 
 ```jsonl
 { "ts": "2025-01-15T14:32:01Z", "who": "richelieu", "to": ["mazarin"], "message": "Monsieur Mazarino..." }
@@ -163,8 +163,8 @@ grep '"who": "richelieu"' logs/sesion_001.jsonl
 
 | Problema | Solución |
 |---|---|
-| El personaje no responde | Verifica que Ollama está corriendo y que el modelo indicado en `char.json` está descargado. Usa `/status`. |
+| El personaje no responde | Verifica que Ollama está corriendo y que el modelo indicado en `char.config.json` está descargado. Usa `/status`. |
 | El personaje responde fuera de su época | Prueba `Bundle_narrative` en lugar de `Bundle_strict`. Los modelos <7B respetan menos las restricciones temporales. |
-| Error de puerto en uso | Cambia los puertos en `session.json` y `chars/*.json`. Los puertos 5000-5099 están libres por defecto. |
+| Error de puerto en uso | Cambia los puertos en `session.config.json` y `chars/*.json`. Los puertos 5000-5099 están libres por defecto. |
 | La TUI se corrompe visualmente | Pulsa `Ctrl+L` para refrescar. Si persiste, lanza con `--no-tui` y lee el log directamente. |
-| Timeout en respuesta de Ollama | Aumenta `wait_min_seconds` en `char.json` para dar más margen entre intervenciones. |
+| Timeout en respuesta de Ollama | Aumenta `wait_min_seconds` en `char.config.json` para dar más margen entre intervenciones. |

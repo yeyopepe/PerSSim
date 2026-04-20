@@ -95,7 +95,7 @@ sequenceDiagram
 
 ### 3.1 Iniciador (launcher.py)
 
-Script de arranque de sesión. Lee `session.json`, levanta cada proceso `CharXXX` y el orquestador como subprocesos independientes, espera a que todos los puertos estén listos y envía la situación inicial. Termina una vez hecho el arranque.
+Script de arranque de sesión. Lee `session.config.json`, levanta cada proceso `CharXXX` y el orquestador como subprocesos independientes, espera a que todos los puertos estén listos y envía la situación inicial. Termina una vez hecho el arranque.
 
 ### 3.2 Orquestador (`orchestrator.py`)
 
@@ -480,7 +480,7 @@ Accept: application/json
 
 ---
 
-### 5.1 `session.json` (Orquestador)
+### 5.1 `session.config.json` (Orquestador)
 
 ```json
 {
@@ -488,13 +488,13 @@ Accept: application/json
   "log_path":   "./logs/session_001.jsonl",
   "initial_situation": "París, 1635. El cardenal Richelieu y Mazarino se reúnen...",
   "characters": [
-    { "id": "richelieu", "host": "localhost", "port": 5001, "config": "./chars/richelieu.json" },
-    { "id": "mazarin",   "host": "localhost", "port": 5002, "config": "./chars/mazarin.json" }
+    { "id": "richelieu", "host": "localhost", "port": 5001, "config": "./chars/richelieu.config.json" },
+    { "id": "mazarin",   "host": "localhost", "port": 5002, "config": "./chars/mazarin.config.json" }
   ]
 }
 ```
 
-### 5.2 `char.json` (por personaje)
+### 5.2 `char.config.json` (por personaje)
 
 ```json
 {
@@ -537,7 +537,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    A([Arranque]) --> B[Lee session.json]
+    A([Arranque]) --> B[Lee session.config.json]
     B --> C[Inicia log, registra personajes]
     C --> D[Envía situación inicial]
     D --> E{Espera evento}
@@ -575,8 +575,8 @@ persim-interact/
 │   ├── tui.py              # Interfaz de terminal (curses)
 │   └── models.py           # Modelos Pydantic compartidos
 ├── config/
-│   ├── session.example.json
-│   └── char.example.json
+│   ├── session.example.config.json
+│   └── char.example.config.json
 └── logs/                   # Generado en tiempo de ejecución
 ```
 
@@ -618,6 +618,6 @@ persim-interact/
 
 ### Fase 4 — Iniciador y empaquetado
 
-- `launcher.py`: lee `session.json`, lanza subprocesos, health-check de puertos, envía situación inicial.
+- `launcher.py`: lee `session.config.json`, lanza subprocesos, health-check de puertos, envía situación inicial.
 - `pyproject.toml`: dependencias, punto de entrada `persim-launch`.
 - Prueba de instalación limpia en entorno virtual desde cero.

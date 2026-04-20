@@ -79,13 +79,13 @@ Una vez instalado, crea una carpeta de trabajo para tu sesión:
 
 ```
 mi-sesion/
-├── session.json            # Configuración de la sesión
+├── session.config.json            # Configuración de la sesión
 ├── bundles/                # Ficheros Bundle de los personajes
 │   ├── Bundle_Richelieu.md
 │   └── Bundle_Mazarin.md
 ├── chars/                  # Configuración de cada personaje
-│   ├── richelieu.json
-│   └── mazarin.json
+│   ├── richelieu.config.json
+│   └── mazarin.config.json
 └── logs/                   # Generado automáticamente
 ```
 
@@ -95,7 +95,7 @@ mi-sesion/
 
 ## Configuración de una sesión
 
-### `session.json`
+### `session.config.json`
 
 Fichero principal. Define los personajes que participan, la ruta del log y la situación inicial.
 
@@ -105,13 +105,13 @@ Fichero principal. Define los personajes que participan, la ruta del log y la si
   "log_path":   "./logs/sesion_001.jsonl",
   "initial_situation": "París, 1635. El cardenal Richelieu y Giulio Mazarino se reúnen para debatir la estrategia de Francia frente a los Habsburgo.",
   "characters": [
-    { "id": "richelieu", "host": "localhost", "port": 5001, "config": "./chars/richelieu.json" },
-    { "id": "mazarin",   "host": "localhost", "port": 5002, "config": "./chars/mazarin.json" }
+    { "id": "richelieu", "host": "localhost", "port": 5001, "config": "./chars/richelieu.config.json" },
+    { "id": "mazarin",   "host": "localhost", "port": 5002, "config": "./chars/mazarin.config.json" }
   ]
 }
 ```
 
-### `chars/richelieu.json`
+### `chars/richelieu.config.json`
 
 Fichero de configuración individual de cada personaje.
 
