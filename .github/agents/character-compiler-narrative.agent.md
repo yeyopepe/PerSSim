@@ -140,19 +140,6 @@ Incluye solo los eventos de tipo `historical`. Para cada uno, escribe una entrad
 
 ---
 
-#### Bloque 4: Nota de exportación
-
-Cierra el Bundle con este texto:
-
-```
----
-*Este Bundle es una exportación de solo lectura generada por PerSSim.
-El personaje no evolucionará durante la sesión: los cambios no se guardan.
-Para sesiones con evolución de memoria y rasgos, usa el entorno PerSSim original.*
-```
-
----
-
 ### Paso 4 — Confirmar resultado
 
 Informa al usuario de que el fichero `Bundle.md` ha sido generado e indica su ruta completa.
