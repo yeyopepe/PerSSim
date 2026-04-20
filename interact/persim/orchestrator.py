@@ -64,6 +64,7 @@ class OrchestratorState:
         self._log_file = self.log_path.open("a", encoding="utf-8")
 
         self.sequence_id: int = 0
+        self.is_paused: bool = False
         self.tui: TUI = TUI()
 
     def char_url(self, character_id: str) -> str:
@@ -169,10 +170,12 @@ async def _stdin_command_loop(state: OrchestratorState) -> None:
             break
 
         if line.lower() == "wait":
+            state.is_paused = True
             ok = await _post_control_to_all(state, "wait")
             state.tui.print_system(f"Pausados: {', '.join(ok) or 'ninguno'}")
 
         elif line.lower() == "continue":
+            state.is_paused = False
             ok = await _post_control_to_all(state, "continue")
             state.tui.print_system(f"Reanudados: {', '.join(ok) or 'ninguno'}")
 
@@ -223,6 +226,14 @@ def create_app(session: dict) -> FastAPI:
         if not req.who:
             raise HTTPException(status_code=400, detail="who is required")
 
+        # Si el sistema está pausado, descartar silenciosamente el mensaje
+        if state.is_paused:
+            logger.debug("[orchestrator] Mensaje de %s descartado: sistema pausado", req.who)
+            return CharacterTalkResponse(
+                timestamp=datetime.now(timezone.utc).isoformat(),
+                sequence_id=state.sequence_id,
+            )
+
         state.sequence_id += 1
         ts = datetime.now(timezone.utc).isoformat()
 
@@ -264,6 +275,7 @@ def create_app(session: dict) -> FastAPI:
     async def wait():
         """Pausa todos los personajes."""
         state = _state
+        state.is_paused = True
         ok = await _post_control_to_all(state, "wait")
         state.tui.print_system(f"Sistema pausado ({len(ok)} personajes)")
         return OrchestratorWaitResponse(status="paused", characters_paused=len(ok))
@@ -272,6 +284,7 @@ def create_app(session: dict) -> FastAPI:
     async def do_continue():
         """Reanuda todos los personajes."""
         state = _state
+        state.is_paused = False
         ok = await _post_control_to_all(state, "continue")
         state.tui.print_system(f"Sistema reanudado ({len(ok)} personajes)")
         return OrchestratorContinueResponse(status="resumed", characters_resumed=len(ok))

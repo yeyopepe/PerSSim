@@ -107,6 +107,8 @@ Servidor FastAPI que actúa como hub central y narrador. Responsabilidades:
 - Mostrar el diálogo en la interfaz de terminal (curses).
 - Leer comandos del usuario por stdin.
 
+El orquestador mantiene su propio estado `is_paused`. Cuando el sistema está pausado, los mensajes recibidos en `/character_talk` se descartan silenciosamente: no se registran en el log, no se muestran en la TUI y no se distribuyen a los personajes. Esto garantiza que ninguna llamada a Ollama en vuelo en el momento de la pausa pueda perpetuar el diálogo una vez que el usuario ha pedido detenerlo.
+
 ### 3.3 Personaje (`char.py`)
 
 Servidor FastAPI que representa a un único personaje. Cada instancia:
@@ -542,11 +544,14 @@ flowchart TD
     C --> D[Envía situación inicial]
     D --> E{Espera evento}
     E -->|carácter interviene| F[Recibe character_talk]
-    F --> G[Escribe en log]
+    F --> F2{¿Sistema pausado?}
+    F2 -->|Sí| F3[Descartar mensaje]
+    F3 --> E
+    F2 -->|No| G[Escribe en log]
     G --> H[Muestra en TUI]
     H --> I[Distribuye listen a todos]
     I --> E
-    E -->|usuario: wait| J[Pausa todos los personajes]
+    E -->|usuario: wait| J[Marca is_paused=True y pausa personajes]
     E -->|usuario: continue| K[Reanuda todos]
     E -->|usuario: texto| L[Envía narración]
     J --> E

@@ -141,8 +141,8 @@ async def _decide_and_maybe_talk(state: CharacterState, trigger_context: str) ->
 
         response = response.strip()
 
-        # ¿El personaje decidió callar?
-        if response.upper() == "SILENCE":
+        # ¿El personaje decidió callar? (acepta variantes: "Silence.", "SILENCE...", etc.)
+        if response.strip().strip(".,!?… ").upper() == "SILENCE":
             logger.debug("[%s] decide: SILENCE", state.character_id)
             return False
 
@@ -399,4 +399,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    main()                                                           
