@@ -94,11 +94,12 @@ _state: Optional[CharacterState] = None
 
 _DECISION_INSTRUCTIONS = """
 ---
-INSTRUCCIONES DE PARTICIPACIÓN EN LA CONVERSACIÓN:
-Estás participando en una conversación multi-personaje. Cuando se te pregunte si quieres intervenir,
-puedes hablar o guardar silencio. Si decides NO intervenir en este momento, no respondas ni digas nada.
-Si decides intervenir, habla directamente en personaje sin ninguna indicación meta.
-NUNCA te salgas de tu personaje, bajo ningún concepto.
+INSTRUCCIONES CRÍTICAS DE PARTICIPACIÓN:
+1. Cuando un personaje habla:
+  1.1 Fíjate a quién va dirigido y piensa si deseas intervenir, qué quieres decir y a quién te diriges.
+    - Si NO deseas intervenir: no digas nada o da una descripción narrativa de cómo estás reaccionando: tu posición, gestos, aspecto, etc...
+    -Si SÍ deseas intervenir: responde en tu papel.
+3. NUNCA abandones el personaje bajo ningún concepto.
 """
 
 

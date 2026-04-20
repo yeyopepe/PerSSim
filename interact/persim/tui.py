@@ -39,6 +39,7 @@ _PALETTE = [
 _NARRATOR_STYLE = "italic dim white"
 _USER_STYLE = "bold orange1"
 _TIMESTAMP_STYLE = "dim white"
+_CHAR_HEADER_STYLE = "bold yellow"
 
 # ---------------------------------------------------------------------------
 # Consola Rich global
@@ -95,26 +96,31 @@ class TUI:
         ts = timestamp or datetime.now().strftime("%H:%M:%S")
         color = self._color_for(who)
 
-        dest = "→ todos" if not to else f"→ {', '.join(to)}"
+        dest_label = "Todos" if not to else ", ".join(to)
 
+        # Construir línea: [ts] NOMBRE a Dest: mensaje
+        sep = "─" * 50
         line = Text()
-        line.append(f"[{ts}] ", style=_TIMESTAMP_STYLE)
+        line.append(f"[{ts}] ", style=_CHAR_HEADER_STYLE)
         if sequence_id is not None:
-            line.append(f"#{sequence_id:03d} ", style=_TIMESTAMP_STYLE)
-        line.append(f"{who.upper()} ", style=color)
-        line.append(f"({dest}): ", style="dim white")
-        line.append(message, style="white")
+            line.append(f"#{sequence_id:03d} ", style=_CHAR_HEADER_STYLE)
+        line.append(f"{who.upper()} a {dest_label}: ", style=_CHAR_HEADER_STYLE)
+        line.append(message, style=_NARRATOR_STYLE)
 
+        console.print(sep, style=_CHAR_HEADER_STYLE)
         console.print(line)
+        console.print(sep, style=_CHAR_HEADER_STYLE)
 
     def print_narrator(self, message: str) -> None:
         """Imprime una narración del usuario/narrador."""
         ts = datetime.now().strftime("%H:%M:%S")
+        sep = "─" * 50
         line = Text()
-        line.append(f"[{ts}] ", style=_TIMESTAMP_STYLE)
-        line.append("NARRADOR: ", style=_USER_STYLE)
+        line.append(f"[{ts}] NARRADOR a Todos: ", style=_CHAR_HEADER_STYLE)
         line.append(message, style=_NARRATOR_STYLE)
+        console.print(sep, style=_CHAR_HEADER_STYLE)
         console.print(line)
+        console.print(sep, style=_CHAR_HEADER_STYLE)
 
     def print_system(self, message: str, style: str = "dim cyan") -> None:
         """Imprime un mensaje de sistema (pausa, reanudación, errores…)."""

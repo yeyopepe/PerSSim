@@ -1,7 +1,7 @@
 {
   "character_id": "richelieu",
   "bundle_path": "../bundles/Bundle_Richelieu.md",
-  "ollama_model": "llama3.1:8b",
+  "ollama_model": "gemma3:latest",
   "ollama_host": "http://localhost:11434",
   "orchestrator_host": "http://localhost:5000",
   "port": 5001,
