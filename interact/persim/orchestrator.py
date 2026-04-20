@@ -169,16 +169,18 @@ async def _stdin_command_loop(state: OrchestratorState) -> None:
             state.tui.print_system("EOF en stdin. El orquestador sigue corriendo.")
             break
 
-        if line.lower() == "wait":
-            state.is_paused = True
-            ok = await _post_control_to_all(state, "wait")
-            state.tui.print_system(f"Pausados: {', '.join(ok) or 'ninguno'}")
-
-        elif line.lower() == "continue":
-            state.is_paused = False
-            ok = await _post_control_to_all(state, "continue")
-            state.tui.print_system(f"Reanudados: {', '.join(ok) or 'ninguno'}")
-
+        if line.startswith("/"):
+            cmd = line[1:].lower()
+            if cmd == "wait":
+                state.is_paused = True
+                ok = await _post_control_to_all(state, "wait")
+                state.tui.print_system(f"Pausados: {', '.join(ok) or 'ninguno'}")
+            elif cmd == "continue":
+                state.is_paused = False
+                ok = await _post_control_to_all(state, "continue")
+                state.tui.print_system(f"Reanudados: {', '.join(ok) or 'ninguno'}")
+            else:
+                state.tui.print_system(f"Comando desconocido: /{cmd}", style="bold red")
         else:
             # Narración libre del usuario
             state.tui.print_narrator(line)

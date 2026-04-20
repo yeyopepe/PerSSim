@@ -76,12 +76,12 @@ sequenceDiagram
 
     U->>O: comando desde stdin
 
-    alt comando: "wait"
+    alt /wait
         O->>O: is_paused = True
         O->>C: POST /wait
         C->>C: is_paused = True, pause_event.clear()
-        Note over C: var_wait bloqueado; /character_talk descartado en O
-    else comando: "continue"
+        Note over C: var_wait bloqueado. /character_talk descartado en O
+    else /continue
         O->>O: is_paused = False
         O->>C: POST /continue
         C->>C: is_paused = False, pause_event.set()
@@ -90,7 +90,7 @@ sequenceDiagram
         OL-->>C: respuesta
         C->>O: POST /character_talk
         O->>C: POST /listen (a todos)
-    else comando: texto libre
+    else texto sin barra (narración)
         O->>C: POST /listen (from=null)
         C->>OL: chat (system + history)
         OL-->>C: respuesta o SILENCE
@@ -561,9 +561,9 @@ flowchart TD
     G --> H[Muestra en TUI]
     H --> I[Distribuye listen a todos]
     I --> E
-    E -->|usuario: wait| J[Marca is_paused=True y pausa personajes]
-    E -->|usuario: continue| K[Reanuda todos]
-    E -->|usuario: texto| L[Envía narración]
+    E -->|usuario: /wait| J[Marca is_paused=True y pausa personajes]
+    E -->|usuario: /continue| K[Reanuda todos]
+    E -->|usuario: texto sin barra| L[Envía narración]
     J --> E
     K --> E
     L --> E

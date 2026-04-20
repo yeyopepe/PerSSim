@@ -95,11 +95,14 @@ _state: Optional[CharacterState] = None
 _DECISION_INSTRUCTIONS = """
 ---
 INSTRUCCIONES CRÍTICAS DE PARTICIPACIÓN:
-1. Cuando un personaje habla:
-  1.1 Fíjate a quién va dirigido y piensa si deseas intervenir, qué quieres decir y a quién te diriges.
-    - Si NO deseas intervenir: no digas nada o da una descripción narrativa de cómo estás reaccionando: tu posición, gestos, aspecto, etc...
-    -Si SÍ deseas intervenir: responde en tu papel.
-3. NUNCA abandones el personaje bajo ningún concepto.
+1. Eres ÚNICAMENTE tu personaje. Jamás generes diálogo, pensamientos ni acciones de otro personaje.
+2. Cuando llegue un mensaje de otro personaje: piensa y responde.
+3. FORMATO DE RESPUESTA: texto puro, sin prefijos ni etiquetas.
+   - NUNCA escribas tu nombre ni el de nadie antes de tu texto (sin "Richelieu:", "Mazarino:", etc.).
+   - NUNCA escribas "Narrador (a todos):" ni ninguna otra etiqueta de contexto.
+   - NUNCA empieces tu respuesta con corchetes ni con el formato del historial, como "[Richelieu → todos]".
+   - Tu respuesta empieza directamente con lo que dices o haces.
+4. NUNCA abandones el personaje bajo ningún concepto.
 """
 
 
@@ -140,11 +143,6 @@ async def _decide_and_maybe_talk(state: CharacterState, trigger_context: str) ->
             return False
 
         response = response.strip()
-
-        # ¿El personaje decidió callar? (acepta variantes: "Silence.", "SILENCE...", etc.)
-        if response.strip().strip(".,!?… ").upper() == "SILENCE":
-            logger.debug("[%s] decide: SILENCE", state.character_id)
-            return False
 
         # Interviene: añadir al historial y notificar al orquestador
         state.history.append({"role": "user", "content": trigger_context})
@@ -260,8 +258,10 @@ def create_app(config: dict) -> FastAPI:
         is_addressed = (not req.to) or (state.character_id in req.to)
 
         # Añadir al historial (siempre, aunque no sea el destinatario)
+        # Formato con corchetes para que el LLM no lo confunda con una plantilla de respuesta
         sender = req.from_ if req.from_ else "Narrador"
-        content = f"{sender} (a {'todos' if not req.to else ', '.join(req.to)}): {req.message}"
+        dest = "todos" if not req.to else ", ".join(req.to)
+        content = f"[{sender} → {dest}] {req.message}"
         state.history.append({"role": "user", "content": content})
 
         will_respond = False
@@ -399,4 +399,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()                                                           
+    main()
