@@ -143,30 +143,6 @@ Servidor FastAPI que representa a un único personaje. Cada instancia:
 
 ## 5. Modelos de datos
 
-### `/character_talk` — payload
-
-```json
-{
-  "who":     "richelieu",
-  "to":      ["mazarin"],
-  "message": "Monsieur Mazarino..."
-}
-```
-
-`to` vacío significa dirigido a todos.
-
-### `/listen` — payload
-
-```json
-{
-  "from":    null,
-  "to":      [],
-  "message": "Ha llegado un mensajero de Madrid."
-}
-```
-
-`from` nulo indica que el mensaje es del narrador.
-
 ### Entrada de log (JSONL)
 
 ```json
