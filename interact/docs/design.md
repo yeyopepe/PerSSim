@@ -72,20 +72,30 @@ sequenceDiagram
     participant U as Usuario
     participant O as Orquestador
     participant C as Todos los Personajes
-    
+    participant OL as Ollama
+
     U->>O: comando desde stdin
-    
+
     alt comando: "wait"
+        O->>O: is_paused = True
         O->>C: POST /wait
-        C->>C: pausa var_wait
+        C->>C: is_paused = True, pause_event.clear()
+        Note over C: var_wait bloqueado; /character_talk descartado en O
     else comando: "continue"
+        O->>O: is_paused = False
         O->>C: POST /continue
-        C->>C: reanuda var_wait
+        C->>C: is_paused = False, pause_event.set()
+        C->>C: var_wait reinicia con nuevo intervalo
+        C->>OL: chat (system + history)
+        OL-->>C: respuesta
+        C->>O: POST /character_talk
+        O->>C: POST /listen (a todos)
     else comando: texto libre
-        O->>O: crea escucha del narrador
-        O->>C: POST /listen
-        Note over O,C: from=null, message=texto
-        C->>C: procesa escucha
+        O->>C: POST /listen (from=null)
+        C->>OL: chat (system + history)
+        OL-->>C: respuesta o SILENCE
+        C->>O: POST /character_talk
+        O->>C: POST /listen (a todos)
     end
 ```
 
