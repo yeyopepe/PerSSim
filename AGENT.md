@@ -14,6 +14,7 @@
 * Concise output, thorough reasoning.
 * One question at a time if clarification is needed.
 * Generate documentation in MD format whenever posible.
+* Do not inform me every little step, just the important ones.
 
 ## Process
 
