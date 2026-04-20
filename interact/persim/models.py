@@ -15,6 +15,18 @@ class CharacterTalkRequest(BaseModel):
     who: str = Field(..., description="ID del personaje que interviene")
     to: list[str] = Field(default_factory=list, description="IDs destinatarios; vacío = todos")
     message: str = Field(..., description="Contenido de la intervención")
+    turn_number: Optional[int] = Field(None, description="Número de turno al que responde")
+
+
+class TurnRequest(BaseModel):
+    turn_number: int
+    deadline_unix: Optional[float] = None
+    prompt_message: Optional[str] = None
+
+
+class TurnCancel(BaseModel):
+    turn_number: int
+    reason: str
 
 
 class ListenRequest(BaseModel):
@@ -59,21 +71,6 @@ class TalkResponse(BaseModel):
     character_id: str
     response: str
     sent_to_orchestrator: bool
-
-
-class WaitResponse(BaseModel):
-    character_id: str
-    status: str  # "paused" | "resumed"
-
-
-class OrchestratorWaitResponse(BaseModel):
-    status: str
-    characters_paused: int
-
-
-class OrchestratorContinueResponse(BaseModel):
-    status: str
-    characters_resumed: int
 
 
 class NarrateResponse(BaseModel):

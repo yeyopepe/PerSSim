@@ -2,6 +2,8 @@
   "session_id": "session_001",
   "log_path": "./logs/session_001.jsonl",
   "initial_situation": "París, 1635. El cardenal Richelieu y Mazarino se reúnen en privado en el Palais-Cardinal para discutir la situación de la guerra en el norte de Europa. La vela proyecta sombras largas sobre los mapas extendidos sobre la mesa.",
+  "turn_order": ["richelieu", "mazarin"],
+  "turn_timeout_seconds": 30,
   "characters": [
     {
       "id": "richelieu",

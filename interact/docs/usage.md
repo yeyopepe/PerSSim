@@ -66,9 +66,9 @@ Empiezan por `/`:
 
 | Comando | Descripción |
 |---|---|
-| `/wait` | Congela todos los personajes. El diálogo se detiene. |
-| `/continue` | Reanuda todos los personajes. |
-| `/talk <id>` | Fuerza una intervención inmediata del personaje indicado. |
+| `/next` | Fuerza el paso al siguiente turno definido en `turn_order`. |
+| `/next <id>` | Fuerza el turno directamente al personaje indicado. |
+| `/turn-status` | Muestra turno actual, orden y deadline del turno. |
 | `/restart <id>` | Reinicia un personaje (útil al cambiar de modelo). Preserva el historial. |
 | `/status` | Estado de cada personaje: activo, en pausa, último turno, modelo en uso. |
 | `/log` | Muestra la ruta del fichero de log activo. |
@@ -76,7 +76,7 @@ Empiezan por `/`:
 
 ### Intervención del narrador
 
-Cualquier texto que **no empiece por `/`** se envía como mensaje del narrador a todos los personajes. Los personajes lo reciben y deciden si intervienen y qué dicen.
+Cualquier texto que **no empiece por `/`** se envía como mensaje del narrador a todos los personajes.
 
 Ejemplos de uso:
 
@@ -127,12 +127,24 @@ tiempo.
 
 ---
 
-## Cambiar el modelo LLM durante una sesión
+## Turnos secuenciales
 
-1. `/wait` — congela la sesión.
-2. Edita `chars/<personaje>.json` y cambia `ollama_model`.
-3. `/restart <id>` — reinicia ese personaje con el nuevo modelo. El historial se preserva.
-4. `/continue` — reanuda la sesión.
+El flujo único es por turnos controlados por el orquestador:
+
+1. El orquestador lee `turn_order` y `turn_timeout_seconds` desde `session.config.json`.
+2. Notifica al personaje activo con `POST /turn`.
+3. El personaje responde con `POST /character_talk`.
+4. Si no responde dentro del timeout, el orquestador envía `POST /turn_cancel` y avanza.
+5. Si llega una intervención fuera de turno, el orquestador responde `409`.
+
+Ejemplo mínimo:
+
+```json
+{
+  "turn_order": ["richelieu", "mazarin"],
+  "turn_timeout_seconds": 20
+}
+```
 
 ---
 
@@ -167,4 +179,4 @@ grep '"who": "richelieu"' logs/sesion_001.jsonl
 | El personaje responde fuera de su época | Prueba `Bundle_narrative` en lugar de `Bundle_strict`. Los modelos <7B respetan menos las restricciones temporales. |
 | Error de puerto en uso | Cambia los puertos en `session.config.json` y `chars/*.json`. Los puertos 5000-5099 están libres por defecto. |
 | La TUI se corrompe visualmente | Pulsa `Ctrl+L` para refrescar. Si persiste, lanza con `--no-tui` y lee el log directamente. |
-| Timeout en respuesta de Ollama | Aumenta `wait_min_seconds` en `char.config.json` para dar más margen entre intervenciones. |
+| Timeout en respuesta de Ollama | Aumenta `turn_timeout_seconds` en `session.config.json` para dar más margen por turno. |

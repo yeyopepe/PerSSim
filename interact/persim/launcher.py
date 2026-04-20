@@ -30,6 +30,17 @@ logger = logging.getLogger(__name__)
 _HEALTH_TIMEOUT_S = 60
 _HEALTH_POLL_S = 0.5
 
+
+def _validate_turn_order(session: dict) -> None:
+    characters = session.get("characters", [])
+    known_ids = {c.get("id") for c in characters}
+    turn_order = session.get("turn_order")
+    if not turn_order or not isinstance(turn_order, list):
+        raise ValueError("session.config.json requiere 'turn_order' (lista no vacía).")
+    invalid = [c for c in turn_order if c not in known_ids]
+    if invalid:
+        raise ValueError(f"turn_order contiene IDs no definidos en characters: {invalid}")
+
 # ---------------------------------------------------------------------------
 # Health check
 # ---------------------------------------------------------------------------
@@ -102,6 +113,7 @@ async def run(session_path: str, log_level: str) -> None:
     session_file = Path(session_path).resolve()
     session_dir = session_file.parent
     session = json.loads(session_file.read_text(encoding="utf-8"))
+    _validate_turn_order(session)
 
     session_id = session.get("session_id", "unknown")
     initial_situation = session.get("initial_situation", "")

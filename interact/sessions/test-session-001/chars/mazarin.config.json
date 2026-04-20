@@ -4,7 +4,5 @@
   "ollama_model": "gemma3n:latest",
   "ollama_host": "http://localhost:11434",
   "orchestrator_host": "http://localhost:5000",
-  "port": 5002,
-  "wait_min_seconds": 15,
-  "wait_max_seconds": 25
+  "port": 5002
 }
