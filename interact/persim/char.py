@@ -260,7 +260,7 @@ def create_app(config: dict) -> FastAPI:
 
         # Añadir al historial (siempre, aunque no sea el destinatario)
         sender = req.from_ if req.from_ else "Narrador"
-        content = f"[{sender} → {'todos' if not req.to else ', '.join(req.to)}]: {req.message}"
+        content = f"{sender} (a {'todos' if not req.to else ', '.join(req.to)}): {req.message}"
         state.history.append({"role": "user", "content": content})
 
         will_respond = False
@@ -397,5 +397,4 @@ def main() -> None:
     uvicorn.run(app, host="0.0.0.0", port=config["port"], log_level=args.log_level.lower())
 
 
-if __name__ == "__main__":
-    main()
+if __na
