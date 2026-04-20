@@ -381,11 +381,17 @@ def main() -> None:
         format="%(asctime)s [%(name)s] %(levelname)s %(message)s",
     )
 
-    config_path = Path(args.config)
+    config_path = Path(args.config).resolve()
     if not config_path.exists():
         raise SystemExit(f"Config no encontrada: {config_path}")
 
+    config_dir = config_path.parent
     config = json.loads(config_path.read_text(encoding="utf-8"))
+
+    # Resolver rutas relativas al directorio del config
+    if "bundle_path" in config and not Path(config["bundle_path"]).is_absolute():
+        config["bundle_path"] = str((config_dir / config["bundle_path"]).resolve())
+
     app = create_app(config)
 
     uvicorn.run(app, host="0.0.0.0", port=config["port"], log_level=args.log_level.lower())

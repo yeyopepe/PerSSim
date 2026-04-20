@@ -99,7 +99,9 @@ async def _send_initial_situation(
 # ---------------------------------------------------------------------------
 
 async def run(session_path: str, log_level: str) -> None:
-    session = json.loads(Path(session_path).read_text(encoding="utf-8"))
+    session_file = Path(session_path).resolve()
+    session_dir = session_file.parent
+    session = json.loads(session_file.read_text(encoding="utf-8"))
 
     session_id = session.get("session_id", "unknown")
     initial_situation = session.get("initial_situation", "")
@@ -112,12 +114,15 @@ async def run(session_path: str, log_level: str) -> None:
 
     try:
         # 1. Arrancar orquestador
-        orch_proc = _launch_orchestrator(session_path, orchestrator_port, log_level)
+        orch_proc = _launch_orchestrator(str(session_file), orchestrator_port, log_level)
         processes.append(orch_proc)
 
         # 2. Arrancar personajes
         for char in characters:
             config_path = char.get("config")
+            if config_path:
+                # Resolver relativo al directorio del session.config.json
+                config_path = str((session_dir / config_path).resolve())
             if not config_path:
                 logger.warning("Personaje %s sin config; omitiendo.", char.get("id"))
                 continue

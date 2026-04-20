@@ -1,0 +1,19 @@
+{
+  "session_id": "test-session-001",
+  "log_path": "c:/repos/perssim/interact/sessions/test-session-001/logs/test-session-001.jsonl",
+  "initial_situation": "París, 1635. El cardenal Richelieu y Mazarino se reúnen en privado en el Palais-Cardinal para discutir la situación de la guerra en el norte de Europa. La vela proyecta sombras largas sobre los mapas extendidos sobre la mesa. Francia acaba de declarar la guerra a España.",
+  "characters": [
+    {
+      "id": "richelieu",
+      "host": "localhost",
+      "port": 5001,
+      "config": "./chars/richelieu.config.json"
+    },
+    {
+      "id": "mazarin",
+      "host": "localhost",
+      "port": 5002,
+      "config": "./chars/mazarin.config.json"
+    }
+  ]
+}

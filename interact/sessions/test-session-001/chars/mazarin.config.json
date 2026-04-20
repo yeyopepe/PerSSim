@@ -1,0 +1,10 @@
+{
+  "character_id": "mazarin",
+  "bundle_path": "../bundles/Bundle_Mazarin.md",
+  "ollama_model": "llama3.1:8b",
+  "ollama_host": "http://localhost:11434",
+  "orchestrator_host": "http://localhost:5000",
+  "port": 5002,
+  "wait_min_seconds": 25,
+  "wait_max_seconds": 75
+}
