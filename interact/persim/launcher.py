@@ -35,8 +35,8 @@ _HEALTH_POLL_S = 0.5
 # ---------------------------------------------------------------------------
 
 async def _wait_for_port(host: str, port: int, timeout: float = _HEALTH_TIMEOUT_S) -> bool:
-    """Espera hasta que el servidor en host:port responda con HTTP 200 a GET /."""
-    url = f"http://{host}:{port}/"
+    """Espera hasta que el servidor en host:port responda con HTTP 200 a GET /status."""
+    url = f"http://{host}:{port}/status"
     deadline = time.monotonic() + timeout
     async with httpx.AsyncClient(timeout=httpx.Timeout(2.0)) as client:
         while time.monotonic() < deadline:

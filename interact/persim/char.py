@@ -96,7 +96,7 @@ _DECISION_INSTRUCTIONS = """
 ---
 INSTRUCCIONES DE PARTICIPACIÓN EN LA CONVERSACIÓN:
 Estás participando en una conversación multi-personaje. Cuando se te pregunte si quieres intervenir,
-puedes hablar o guardar silencio. Si decides NO intervenir en este momento no respondas ni digas nada.
+puedes hablar o guardar silencio. Si decides NO intervenir en este momento, no respondas ni digas nada.
 Si decides intervenir, habla directamente en personaje sin ninguna indicación meta.
 NUNCA te salgas de tu personaje, bajo ningún concepto.
 """
@@ -397,4 +397,5 @@ def main() -> None:
     uvicorn.run(app, host="0.0.0.0", port=config["port"], log_level=args.log_level.lower())
 
 
-if __na
+if __name__ == "__main__":
+    main()
