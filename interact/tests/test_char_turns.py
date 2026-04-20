@@ -3,7 +3,7 @@ import time
 
 from fastapi.testclient import TestClient
 
-from persim import char
+from perssim import char
 
 
 def _config(tmp_path):

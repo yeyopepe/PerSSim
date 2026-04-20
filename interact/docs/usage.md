@@ -7,7 +7,11 @@
 Con la configuración preparada según la [Guía de instalación](install.md):
 
 ```bash
-persim-launch --session ./session.config.json
+perssim-launcher --session ./session.config.json
+```
+ o 
+```bash
+python -m perssim.launcher --session ./session.config.json
 ```
 
 El iniciador realizará automáticamente:

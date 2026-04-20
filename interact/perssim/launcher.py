@@ -1,12 +1,12 @@
-"""Launcher de sesión PerSSim (persim-launch).
+"""Launcher de sesión PerSSim (perssim-launch).
 
 Lee session.config.json, arranca el orquestador y los personajes como subprocesos
 independientes, espera a que todos los puertos estén listos y envía la
 situación inicial.
 
 Uso:
-    persim-launch --session ./session.config.json
-    persim-launch --session ./session.config.json --log-level DEBUG
+    perssim-launch --session ./session.config.json
+    perssim-launch --session ./session.config.json --log-level DEBUG
 """
 
 from __future__ import annotations
@@ -23,6 +23,8 @@ from pathlib import Path
 from typing import Optional
 
 import httpx
+
+from perssim.ollama_debug import get_next_log_path
 
 logger = logging.getLogger(__name__)
 
@@ -65,22 +67,42 @@ async def _wait_for_port(host: str, port: int, timeout: float = _HEALTH_TIMEOUT_
 # Lanzar subprocesos
 # ---------------------------------------------------------------------------
 
-def _launch_orchestrator(session_path: str, port: int, log_level: str) -> subprocess.Popen:
+def _debug_args(ollama_debug: bool, ollama_debug_log: Optional[str]) -> list[str]:
+    args: list[str] = []
+    if ollama_debug:
+        args.append("--ollama-debug")
+    if ollama_debug_log:
+        args.extend(["--ollama-debug-log", ollama_debug_log])
+    return args
+
+
+def _launch_orchestrator(
+    session_path: str, port: int, log_level: str,
+    log_path: Optional[str],
+    ollama_debug: bool, ollama_debug_log: Optional[str],
+) -> subprocess.Popen:
     cmd = [
-        sys.executable, "-m", "persim.orchestrator",
+        sys.executable, "-m", "perssim.orchestrator",
         "--session", session_path,
         "--port", str(port),
         "--log-level", log_level,
     ]
+    if log_path:
+        cmd.extend(["--log-path", log_path])
+    cmd.extend(_debug_args(ollama_debug, ollama_debug_log))
     logger.info("Arrancando orquestador: %s", " ".join(cmd))
     return subprocess.Popen(cmd)
 
 
-def _launch_character(config_path: str, log_level: str) -> subprocess.Popen:
+def _launch_character(
+    config_path: str, log_level: str,
+    ollama_debug: bool, ollama_debug_log: Optional[str],
+) -> subprocess.Popen:
     cmd = [
-        sys.executable, "-m", "persim.char",
+        sys.executable, "-m", "perssim.char",
         "--config", config_path,
         "--log-level", log_level,
+        *_debug_args(ollama_debug, ollama_debug_log),
     ]
     logger.info("Arrancando personaje: %s", " ".join(cmd))
     return subprocess.Popen(cmd)
@@ -120,13 +142,31 @@ async def run(session_path: str, log_level: str) -> None:
     orchestrator_port = 5000  # por defecto; configurable en session si se quiere
     orchestrator_host = "localhost"
 
+    log_path: Optional[str] = session.get("log_path")
+    if log_path and not Path(log_path).is_absolute():
+        log_path = str((session_dir / log_path).resolve())
+    if log_path:
+        log_path = get_next_log_path(log_path)
+        logger.info("Session log: %s", log_path)
+
+    ollama_debug: bool = session.get("ollama_debug", False)
+    ollama_debug_log: Optional[str] = session.get("ollama_debug_log")
+    if ollama_debug_log and not Path(ollama_debug_log).is_absolute():
+        ollama_debug_log = str((session_dir / ollama_debug_log).resolve())
+
+    if ollama_debug_log:
+        ollama_debug_log = get_next_log_path(ollama_debug_log)
+        logger.info("Ollama debug log: %s", ollama_debug_log)
+
     characters = session.get("characters", [])
 
     processes: list[subprocess.Popen] = []
 
     try:
         # 1. Arrancar orquestador
-        orch_proc = _launch_orchestrator(str(session_file), orchestrator_port, log_level)
+        orch_proc = _launch_orchestrator(
+            str(session_file), orchestrator_port, log_level, log_path, ollama_debug, ollama_debug_log
+        )
         processes.append(orch_proc)
 
         # 2. Arrancar personajes
@@ -138,7 +178,7 @@ async def run(session_path: str, log_level: str) -> None:
             if not config_path:
                 logger.warning("Personaje %s sin config; omitiendo.", char.get("id"))
                 continue
-            proc = _launch_character(config_path, log_level)
+            proc = _launch_character(config_path, log_level, ollama_debug, ollama_debug_log)
             processes.append(proc)
 
         # 3. Health checks

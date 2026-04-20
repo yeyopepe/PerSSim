@@ -22,7 +22,7 @@ NO añadas información tuya o comentarios de ningún tipo, solo los datos de la
 
 Lee el contenido completo de los siguientes ficheros, en este orden:
 
-1. El `SYSTEM_PROMPT.md` final de la versión (por ejemplo `.simulation/v1/SYSTEM_PROMPT.md`). Si el fichero de la implementación redirige a otro, usa el fichero al que apunta.
+1. El `SYSTEM_PROMPT.md` del personaje/versión específico (por ejemplo `./simulation/v1/Impl/001/SYSTEM_PROMPT.md`). Si el fichero de la implementación redirige a otro, usa el fichero al que apunta.
 2. `Identity.json`
 3. `Profile.json`
 4. `Values.json`

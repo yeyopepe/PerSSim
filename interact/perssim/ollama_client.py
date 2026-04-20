@@ -1,7 +1,7 @@
 """Wrapper async sobre la API de Ollama.
 
 Uso:
-    from persim.ollama_client import OllamaClient
+    from perssim.ollama_client import OllamaClient
 
     client = OllamaClient(host="http://localhost:11434", model="llama3")
     response = await client.chat(system="...", messages=[...])

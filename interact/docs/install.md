@@ -60,13 +60,13 @@ pip install -e .
 ### Desde PyPI (cuando esté publicado)
 
 ```bash
-pip install persim-interact
+pip install perssim-interact
 ```
 
 ### Verificar la instalación
 
 ```bash
-persim-launch --help
+perssim-launch --help
 ```
 
 Deberías ver el mensaje de ayuda con las opciones disponibles.
@@ -89,7 +89,7 @@ mi-sesion/
 └── logs/                   # Generado automáticamente
 ```
 
-> Puedes generar esta estructura con ficheros de ejemplo con: `persim-launch --init mi-sesion`
+> Puedes generar esta estructura con ficheros de ejemplo con: `perssim-launch --init mi-sesion`
 
 ---
 

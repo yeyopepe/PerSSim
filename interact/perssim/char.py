@@ -14,7 +14,7 @@ import httpx
 import uvicorn
 from fastapi import FastAPI, HTTPException
 
-from persim.models import (
+from perssim.models import (
     CharacterListenResponse,
     CharacterTalkRequest,
     LastTurn,
@@ -24,7 +24,8 @@ from persim.models import (
     TurnCancel,
     TurnRequest,
 )
-from persim.ollama_client import OllamaClient, OllamaError
+from perssim.ollama_client import OllamaClient, OllamaError
+from perssim import ollama_debug as odbg
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +46,9 @@ class CharacterState:
             model=config.get("ollama_model", "llama3"),
         )
 
+        self.ollama_debug: bool = config.get("ollama_debug", False)
+        self.ollama_debug_log: Optional[str] = config.get("ollama_debug_log")
+
         self.history: list[dict] = []
         self.conversation_turns: int = 0
         self.last_turn: Optional[dict] = None
@@ -60,15 +64,15 @@ _state: Optional[CharacterState] = None
 
 _DECISION_INSTRUCTIONS = """
 ---
-INSTRUCCIONES CRÍTICAS DE PARTICIPACIÓN:
-1. Eres ÚNICAMENTE tu personaje. Jamás generes diálogo, pensamientos ni acciones de otro personaje.
-2. Cuando llegue un mensaje de otro personaje: piensa y responde.
-3. FORMATO DE RESPUESTA: texto puro, sin prefijos ni etiquetas.
-   - NUNCA escribas tu nombre ni el de nadie antes de tu texto (sin "Richelieu:", "Mazarino:", etc.).
-   - NUNCA escribas "Narrador (a todos):" ni ninguna otra etiqueta de contexto.
-   - NUNCA empieces tu respuesta con corchetes ni con el formato del historial, como "[Richelieu → todos]".
-   - Tu respuesta empieza directamente con lo que dices o haces.
-4. NUNCA abandones el personaje bajo ningún concepto.
+
+##INSTRUCCIONES CRÍTICAS DE PARTICIPACIÓN ##
+
+1. Eres ÚNICAMENTE tu personaje.
+2. NUNCA abandones tu personaje bajo ningún concepto.
+3. No interpretes ningún otro personaje. No hables por los demás. Espera sus intervenciones.
+4. Tu respuesta empieza directamente con lo que dice o hace tu personaje.
+
+
 """
 
 
@@ -76,12 +80,38 @@ def _build_system_prompt(bundle: str) -> str:
     return bundle + _DECISION_INSTRUCTIONS
 
 
+def _dbg_request(state: CharacterState, system: str, messages: list[dict], temperature: float) -> None:
+    if not state.ollama_debug_log:
+        return
+    odbg.log_request(state.ollama_debug_log, state.character_id,
+                     state.ollama.host, state.ollama.model, system, messages, temperature)
+
+
+def _dbg_response(state: CharacterState, response: Optional[str]) -> None:
+    if not state.ollama_debug_log:
+        return
+    odbg.log_response(state.ollama_debug_log, state.character_id, state.ollama.host, response)
+
+
+_TEMPERATURE = 0.85
+
+
 async def _generate_with_cancel(state: CharacterState, messages: list[dict]) -> Optional[str]:
+    system = _build_system_prompt(state.bundle)
+    if state.ollama_debug:
+        _dbg_request(state, system, messages, _TEMPERATURE)
+
+    # Agregar "¿Qué contestas?" al final del último mensaje
+    messages_with_prompt = list(messages)
+    if messages_with_prompt:
+        last_msg = messages_with_prompt[-1]
+        last_msg["content"] = last_msg["content"] + "\n\n¿Qué contestas?"
+
     llm_task = asyncio.create_task(
         state.ollama.chat(
-            messages=messages,
-            system=_build_system_prompt(state.bundle),
-            temperature=0.85,
+            messages=messages_with_prompt,
+            system=system,
+            temperature=_TEMPERATURE,
         ),
         name=f"llm_chat_{state.character_id}",
     )
@@ -95,7 +125,10 @@ async def _generate_with_cancel(state: CharacterState, messages: list[dict]) -> 
 
             done, _ = await asyncio.wait({llm_task}, timeout=0.2)
             if llm_task in done:
-                return llm_task.result().strip()
+                result = llm_task.result().strip()
+                if state.ollama_debug:
+                    _dbg_response(state, result)
+                return result
     except OllamaError as exc:
         logger.error("[%s] Error Ollama: %s", state.character_id, exc)
         return None
@@ -123,9 +156,6 @@ async def _post_character_talk(
 async def _generate_and_send(
     state: CharacterState, turn_number: Optional[int], prompt_message: Optional[str]
 ) -> None:
-    trigger = prompt_message or (
-        "Es tu turno de intervenir. Habla en personaje y aporta información útil."
-    )
     response_text: Optional[str] = None
     async with state._gen_lock:
         if state._turn_cancel_event.is_set():
@@ -134,12 +164,14 @@ async def _generate_and_send(
             return
 
         messages = list(state.history)
-        messages.append({"role": "user", "content": trigger})
+        if prompt_message:
+            messages.append({"role": "user", "content": prompt_message})
         response_text = await _generate_with_cancel(state, messages)
         if response_text is None or state._turn_cancel_event.is_set():
             return
 
-        state.history.append({"role": "user", "content": trigger})
+        if prompt_message:
+            state.history.append({"role": "user", "content": prompt_message})
         state.history.append({"role": "assistant", "content": response_text})
         state.conversation_turns += 1
         ts = datetime.now(timezone.utc).isoformat()
@@ -184,9 +216,8 @@ def create_app(config: dict) -> FastAPI:
     @app.post("/listen", response_model=CharacterListenResponse)
     async def listen(req: ListenRequest):
         state = _state
-        sender = req.from_ if req.from_ else "Narrador"
-        dest = "todos" if not req.to else ", ".join(req.to)
-        content = f"[{sender} → {dest}] {req.message}"
+        sender = req.from_.capitalize() if req.from_ else "Narrador"
+        content = f"{sender} dice: {req.message}"
         state.history.append({"role": "user", "content": content})
         return CharacterListenResponse(
             character_id=state.character_id,
@@ -230,27 +261,31 @@ def create_app(config: dict) -> FastAPI:
     @app.post("/talk", response_model=TalkResponse)
     async def talk():
         state = _state
-        trigger = (
-            "Se te pide que intervengas ahora. Habla en personaje. "
-            "No uses SILENCE; di algo relevante para la situación actual."
-        )
         response_text = ""
         async with state._gen_lock:
             messages = list(state.history)
-            messages.append({"role": "user", "content": trigger})
+            system = _build_system_prompt(state.bundle)
+            if state.ollama_debug:
+                _dbg_request(state, system, messages, _TEMPERATURE)
+
+            # Agregar "¿Qué contestas?" al final del último mensaje
+            if messages:
+                messages[-1]["content"] = messages[-1]["content"] + "\n\n¿Qué contestas?"
+
             try:
                 response_text = await state.ollama.chat(
                     messages=messages,
-                    system=_build_system_prompt(state.bundle),
-                    temperature=0.85,
+                    system=system,
+                    temperature=_TEMPERATURE,
                 )
                 response_text = response_text.strip()
+                if state.ollama_debug:
+                    _dbg_response(state, response_text)
                 if response_text.upper() == "SILENCE":
                     response_text = "…"
             except OllamaError as exc:
                 raise HTTPException(status_code=503, detail=str(exc))
 
-            state.history.append({"role": "user", "content": trigger})
             state.history.append({"role": "assistant", "content": response_text})
             state.conversation_turns += 1
             ts = datetime.now(timezone.utc).isoformat()
@@ -289,6 +324,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Servidor de personaje PerSSim")
     parser.add_argument("--config", required=True, help="Ruta al fichero char.config.json")
     parser.add_argument("--log-level", default="INFO")
+    parser.add_argument("--ollama-debug", action="store_true", default=False)
+    parser.add_argument("--ollama-debug-log", default=None, help="Ruta absoluta al JSONL de debug Ollama")
     args = parser.parse_args()
 
     logging.basicConfig(
@@ -305,6 +342,11 @@ def main() -> None:
 
     if "bundle_path" in config and not Path(config["bundle_path"]).is_absolute():
         config["bundle_path"] = str((config_dir / config["bundle_path"]).resolve())
+
+    if args.ollama_debug:
+        config["ollama_debug"] = True
+    if args.ollama_debug_log:
+        config["ollama_debug_log"] = args.ollama_debug_log
 
     app = create_app(config)
     uvicorn.run(app, host="0.0.0.0", port=config["port"], log_level=args.log_level.lower())

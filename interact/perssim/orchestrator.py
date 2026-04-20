@@ -15,7 +15,7 @@ import httpx
 import uvicorn
 from fastapi import FastAPI, HTTPException
 
-from persim.models import (
+from perssim.models import (
     CharacterTalkRequest,
     CharacterTalkResponse,
     ListenRequest,
@@ -24,7 +24,9 @@ from persim.models import (
     TurnCancel,
     TurnRequest,
 )
-from persim.tui import TUI
+from perssim.tui import TUI
+from perssim import ollama_debug as odbg
+from perssim.ollama_debug import get_next_log_path
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +60,14 @@ class OrchestratorState:
         self._turn_lock: asyncio.Lock = asyncio.Lock()
         self._turn_task: Optional[asyncio.Task] = None
 
+        self.ollama_debug: bool = session.get("ollama_debug", False)
+        ollama_debug_log_base = session.get("ollama_debug_log")
+        self.ollama_debug_log: Optional[str] = (
+            get_next_log_path(ollama_debug_log_base) if ollama_debug_log_base else None
+        )
+
         self.sequence_id: int = 0
+        self._turns_started: bool = False
         self.tui: TUI = TUI()
         self.unreachable_characters: set[str] = set()
 
@@ -86,14 +95,7 @@ class OrchestratorState:
         self._log_file.flush()
 
     def log_event(self, event_type: str, message: str) -> None:
-        self.log_entry(
-            {
-                "ts": datetime.now(timezone.utc).isoformat(),
-                "who": None,
-                "to": [],
-                "message": f"[{event_type}] {message}",
-            }
-        )
+        pass
 
     def close(self) -> None:
         self._log_file.close()
@@ -280,7 +282,9 @@ def create_app(session: dict) -> FastAPI:
         _state = OrchestratorState(session)
         _state.tui.print_banner(_state.session_id, list(_state.characters.keys()))
         asyncio.create_task(_stdin_command_loop(_state), name="stdin_loop")
-        asyncio.create_task(_state._notify_turn(_state.current_character()), name="turn_bootstrap")
+        if not _state.initial_situation:
+            _state._turns_started = True
+            asyncio.create_task(_state._notify_turn(_state.current_character()), name="turn_bootstrap")
         logger.info("Orquestador listo. Sesión: %s", _state.session_id)
         yield
         if _state._turn_task and not _state._turn_task.done():
@@ -373,6 +377,9 @@ def create_app(session: dict) -> FastAPI:
         state.tui.print_narrator(req.message)
         state.log_entry({"ts": ts, "who": None, "to": [], "message": req.message, "type": "narration"})
         n = await _post_listen_to_all(state, from_=None, to=[], message=req.message)
+        if not state._turns_started:
+            state._turns_started = True
+            asyncio.create_task(_state._notify_turn(state.current_character()), name="turn_bootstrap")
         return NarrateResponse(timestamp=ts, characters_notified=n)
 
     return app
@@ -385,6 +392,9 @@ def main() -> None:
     parser.add_argument("--session", required=True, help="Ruta al fichero session.json")
     parser.add_argument("--port", type=int, default=5000)
     parser.add_argument("--log-level", default="INFO")
+    parser.add_argument("--log-path", default=None, help="Ruta al fichero de log de sesión")
+    parser.add_argument("--ollama-debug", action="store_true", default=False)
+    parser.add_argument("--ollama-debug-log", default=None, help="Ruta absoluta al JSONL de debug Ollama")
     args = parser.parse_args()
 
     logging.basicConfig(
@@ -392,11 +402,47 @@ def main() -> None:
         format="%(asctime)s [%(name)s] %(levelname)s %(message)s",
     )
 
-    session_path = Path(args.session)
+    session_path = Path(args.session).resolve()
     if not session_path.exists():
         raise SystemExit(f"Session no encontrada: {session_path}")
 
+    session_dir = session_path.parent
     session = json.loads(session_path.read_text(encoding="utf-8"))
+
+    if "log_path" in session and not Path(session["log_path"]).is_absolute():
+        session["log_path"] = str((session_dir / session["log_path"]).resolve())
+
+    if args.log_path:
+        session["log_path"] = args.log_path
+
+    if args.ollama_debug:
+        session["ollama_debug"] = True
+    if args.ollama_debug_log:
+        session["ollama_debug_log"] = args.ollama_debug_log
+
+    if session.get("log_path"):
+        log_path = session["log_path"]
+        if not Path(log_path).is_absolute():
+            log_path = str((session_dir / log_path).resolve())
+
+        import re
+        if not re.search(r'-\d{4}\.\w+$', log_path):
+            log_path = get_next_log_path(log_path)
+
+        session["log_path"] = log_path
+        logger.info("Session log: %s", session["log_path"])
+
+    if session.get("ollama_debug_log"):
+        ollama_log_path = session["ollama_debug_log"]
+        if not Path(ollama_log_path).is_absolute():
+            ollama_log_path = str((session_dir / ollama_log_path).resolve())
+
+        if not re.search(r'-\d{4}\.\w+$', ollama_log_path):
+            ollama_log_path = get_next_log_path(ollama_log_path)
+
+        session["ollama_debug_log"] = ollama_log_path
+        logger.info("Ollama debug log: %s", session["ollama_debug_log"])
+
     app = create_app(session)
     uvicorn.run(app, host="0.0.0.0", port=args.port, log_level=args.log_level.lower())
 

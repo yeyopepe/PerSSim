@@ -3,7 +3,7 @@ import time
 
 from fastapi.testclient import TestClient
 
-from persim import orchestrator
+from perssim import orchestrator
 
 
 def _session(timeout: int = 30):
