@@ -13,39 +13,87 @@ Objetivos de diseño:
 
 ## 2. Arquitectura
 
+### 2.1 Componentes principales
+
 ```mermaid
-graph TD
-    U([Usuario]) -->|wait / continue / narración| O
-    L([Iniciador]) -->|arranca| O
-    L -->|arranca| C1
-    L -->|arranca| C2
-    L -->|arranca| CN
-
+graph LR
+    L[Launcher]
     O[Orquestador]
-    C1[CharXXX — personaje 1]
-    C2[CharXXX — personaje 2]
-    CN[CharXXX — personaje N]
-
-    O -->|/listen /wait /continue| C1
-    O -->|/listen /wait /continue| C2
-    O -->|/listen /wait /continue| CN
-
-    C1 -->|/character_talk| O
-    C2 -->|/character_talk| O
-    CN -->|/character_talk| O
-
-    C1 -->|chat| OL[(Ollama API)]
+    C1["Char₁"]
+    C2["Char₂"]
+    CN["CharN"]
+    OL["Ollama"]
+    LOG["Log JSONL"]
+    
+    L -->|inicia| O
+    L -->|inicia| C1
+    L -->|inicia| C2
+    L -->|inicia| CN
+    
+    C1 -->|talk| O
+    C2 -->|talk| O
+    CN -->|talk| O
+    
+    O -->|listen| C1
+    O -->|listen| C2
+    O -->|listen| CN
+    
+    C1 -->|chat| OL
     C2 -->|chat| OL
     CN -->|chat| OL
+    
+    O -->|escribe| LOG
+```
 
-    O -->|escribe| LOG[(Log JSONL)]
+### 2.2 Flujo de intervención de un personaje
+
+```mermaid
+sequenceDiagram
+    participant C as Personaje
+    participant O as Orquestador
+    participant OL as Ollama
+    
+    C->>C: var_wait expira
+    C->>OL: chat (system + history)
+    OL-->>C: respuesta del modelo
+    C->>O: POST /character_talk
+    Note over C,O: {who, to, message}
+    O->>O: escribe en log
+    O->>O: renderiza en TUI
+    O->>C: POST /listen (a todos)
+    Note over O,C: distribuye la intervención
+    C->>C: procesa escucha
+```
+
+### 2.3 Flujo de intervención del usuario
+
+```mermaid
+sequenceDiagram
+    participant U as Usuario
+    participant O as Orquestador
+    participant C as Todos los Personajes
+    
+    U->>O: comando desde stdin
+    
+    alt comando: "wait"
+        O->>C: POST /wait
+        C->>C: pausa var_wait
+    else comando: "continue"
+        O->>C: POST /continue
+        C->>C: reanuda var_wait
+    else comando: texto libre
+        O->>O: crea escucha del narrador
+        O->>C: POST /listen
+        Note over O,C: from=null, message=texto
+        C->>C: procesa escucha
+    end
 ```
 
 ---
 
 ## 3. Componentes
 
-### 3.1 Iniciador (`launcher.py`)
+### 3.1 Iniciador (launcher.py)
 
 Script de arranque de sesión. Lee `session.json`, levanta cada proceso `CharXXX` y el orquestador como subprocesos independientes, espera a que todos los puertos estén listos y envía la situación inicial. Termina una vez hecho el arranque.
 
@@ -127,9 +175,336 @@ Servidor FastAPI que representa a un único personaje. Cada instancia:
 
 ---
 
-## 6. Ficheros de configuración
+## 4. Especificación OpenAPI de endpoints
 
-### `session.json` (Orquestador)
+### 4.1 Orquestador (puerto 5000)
+
+#### POST /character_talk
+
+Recibe una intervención de un personaje. El orquestador la registra, renderiza en la TUI y distribuye a todos los personajes mediante `/listen`.
+
+**Firma:**
+```
+POST /character_talk
+Content-Type: application/json
+```
+
+**Payload (Request):**
+```json
+{
+  "who": "string",
+  "to": ["string"],
+  "message": "string"
+}
+```
+
+| Campo | Tipo | Requerido | Descripción |
+|-------|------|-----------|-------------|
+| `who` | string | ✓ | ID del personaje que interviene |
+| `to` | array[string] | ✓ | Array de IDs de destinatarios. Vacío `[]` = a todos |
+| `message` | string | ✓ | Contenido de la intervención |
+
+**Respuesta exitosa (200):**
+```json
+{
+  "status": "logged",
+  "timestamp": "2025-01-15T14:32:01Z",
+  "sequence_id": 42
+}
+```
+
+**Respuesta con error (400):**
+```json
+{
+  "detail": "who is required"
+}
+```
+
+---
+
+#### POST /listen
+
+Distribuida por el orquestador a todos los personajes para que procesen una intervención o narración.
+
+**Firma:**
+```
+POST /listen
+Content-Type: application/json
+```
+
+**Payload (Request):**
+```json
+{
+  "from": "string or null",
+  "to": ["string"],
+  "message": "string"
+}
+```
+
+| Campo | Tipo | Requerido | Descripción |
+|-------|------|-----------|-------------|
+| `from` | string \| null | ✓ | ID del emisor. `null` indica mensaje del narrador |
+| `to` | array[string] | ✓ | Array de destinatarios. Vacío = a todos |
+| `message` | string | ✓ | Contenido del mensaje |
+
+**Respuesta exitosa (200):**
+```json
+{
+  "acknowledged": true,
+  "character_id": "richelieu",
+  "will_respond": true,
+  "decision_time_ms": 145
+}
+```
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `acknowledged` | boolean | Siempre `true` en 200 |
+| `character_id` | string | ID del personaje que procesa |
+| `will_respond` | boolean | Si el personaje decidió intervenir inmediatamente |
+| `decision_time_ms` | integer | Tiempo en ms de evaluar la escucha |
+
+---
+
+#### POST /wait
+
+Pausa todos los personajes. Suspende el bucle `var_wait` en cada uno.
+
+**Firma:**
+```
+POST /wait
+Content-Type: application/json
+```
+
+**Payload (Request):**
+```json
+{}
+```
+
+**Respuesta exitosa (200):**
+```json
+{
+  "status": "paused",
+  "characters_paused": 2
+}
+```
+
+---
+
+#### POST /continue
+
+Reanuda todos los personajes. Reinicia el bucle `var_wait`.
+
+**Firma:**
+```
+POST /continue
+Content-Type: application/json
+```
+
+**Payload (Request):**
+```json
+{}
+```
+
+**Respuesta exitosa (200):**
+```json
+{
+  "status": "resumed",
+  "characters_resumed": 2
+}
+```
+
+---
+
+#### POST /narrate
+
+Envía un mensaje del narrador a todos los personajes (equivale a `/listen` con `from=null`).
+
+**Firma:**
+```
+POST /narrate
+Content-Type: application/json
+```
+
+**Payload (Request):**
+```json
+{
+  "message": "string"
+}
+```
+
+| Campo | Tipo | Requerido | Descripción |
+|-------|------|-----------|-------------|
+| `message` | string | ✓ | Contenido de la narración |
+
+**Respuesta exitosa (200):**
+```json
+{
+  "status": "narrated",
+  "timestamp": "2025-01-15T14:32:15Z",
+  "characters_notified": 2
+}
+```
+
+---
+
+### 4.2 Personaje (puertos 5001, 5002, ..., 500N)
+
+#### POST /listen
+
+Procesa una intervención o narración. El personaje evalúa si intervenir y actualiza su historial.
+
+**Firma:**
+```
+POST /listen
+Content-Type: application/json
+```
+
+**Payload (Request):**
+```json
+{
+  "from": "string or null",
+  "to": ["string"],
+  "message": "string"
+}
+```
+
+**Respuesta exitosa (200):**
+```json
+{
+  "acknowledged": true,
+  "character_id": "richelieu",
+  "will_respond": false,
+  "next_decision_time_unix": 1705348320
+}
+```
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `acknowledged` | boolean | Siempre `true` en 200 |
+| `character_id` | string | ID del personaje |
+| `will_respond` | boolean | Si el personaje va a intervenir inmediatamente (fallback a `/character_talk`) |
+| `next_decision_time_unix` | integer | Timestamp UNIX del próximo chequeo de `var_wait` |
+
+---
+
+#### POST /talk
+
+Fuerza una intervención inmediata del personaje, generando respuesta sin esperar a `var_wait`.
+
+**Firma:**
+```
+POST /talk
+Content-Type: application/json
+```
+
+**Payload (Request):**
+```json
+{}
+```
+
+**Respuesta exitosa (200):**
+```json
+{
+  "character_id": "richelieu",
+  "response": "Monsieur Mazarino, vuestro silencio me ofende...",
+  "sent_to_orchestrator": true
+}
+```
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `character_id` | string | ID del personaje |
+| `response` | string | Texto generado y ya enviado al orquestador |
+| `sent_to_orchestrator` | boolean | Confirmación de envío a `/character_talk` |
+
+---
+
+#### POST /wait
+
+Pausa el bucle `var_wait` del personaje.
+
+**Firma:**
+```
+POST /wait
+Content-Type: application/json
+```
+
+**Payload (Request):**
+```json
+{}
+```
+
+**Respuesta exitosa (200):**
+```json
+{
+  "character_id": "richelieu",
+  "status": "paused"
+}
+```
+
+---
+
+#### POST /continue
+
+Reanuda el bucle `var_wait` del personaje.
+
+**Firma:**
+```
+POST /continue
+Content-Type: application/json
+```
+
+**Payload (Request):**
+```json
+{}
+```
+
+**Respuesta exitosa (200):**
+```json
+{
+  "character_id": "richelieu",
+  "status": "resumed"
+}
+```
+
+---
+
+#### GET /status
+
+Devuelve el estado actual del personaje.
+
+**Firma:**
+```
+GET /status
+Accept: application/json
+```
+
+**Respuesta exitosa (200):**
+```json
+{
+  "character_id": "richelieu",
+  "is_paused": false,
+  "last_turn": {
+    "timestamp": "2025-01-15T14:31:55Z",
+    "message": "Monsieur Mazarino..."
+  },
+  "conversation_turns": 12,
+  "var_wait_remaining_seconds": 23.5
+}
+```
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `character_id` | string | ID del personaje |
+| `is_paused` | boolean | Si está pausado |
+| `last_turn` | object | Última intervención enviada |
+| `conversation_turns` | integer | Total de turnos en este diálogo |
+| `var_wait_remaining_seconds` | number | Segundos restantes para el próximo chequeo automático |
+
+---
+
+### 5.1 `session.json` (Orquestador)
 
 ```json
 {
@@ -143,7 +518,7 @@ Servidor FastAPI que representa a un único personaje. Cada instancia:
 }
 ```
 
-### `char.json` (por personaje)
+### 5.2 `char.json` (por personaje)
 
 ```json
 {
@@ -160,9 +535,9 @@ Servidor FastAPI que representa a un único personaje. Cada instancia:
 
 ---
 
-## 7. Bucles de ejecución
+## 6. Bucles de ejecución
 
-### Bucle del personaje
+### 6.1 Bucle del personaje
 
 ```mermaid
 flowchart TD
@@ -182,29 +557,30 @@ flowchart TD
     G --> D
 ```
 
-### Bucle del orquestador
+### 6.2 Bucle del orquestador
 
 ```mermaid
 flowchart TD
     A([Arranque]) --> B[Lee session.json]
     B --> C[Inicia log, registra personajes]
     C --> D[Envía situación inicial]
-    D --> E{Espera}
-    E -->|/character_talk| F[Escribe en log]
-    F --> G[Muestra en TUI]
-    G --> H[Distribuye /listen a todos]
-    H --> E
-    E -->|stdin: wait| I[/wait a todos los personajes]
-    E -->|stdin: continue| J[/continue a todos los personajes]
-    E -->|stdin: texto libre| K[/listen narrador a todos]
+    D --> E{Espera evento}
+    E -->|carácter interviene| F[Recibe character_talk]
+    F --> G[Escribe en log]
+    G --> H[Muestra en TUI]
+    H --> I[Distribuye listen a todos]
     I --> E
+    E -->|usuario: wait| J[Pausa todos los personajes]
+    E -->|usuario: continue| K[Reanuda todos]
+    E -->|usuario: texto| L[Envía narración]
     J --> E
     K --> E
+    L --> E
 ```
 
 ---
 
-## 8. Estructura del paquete
+## 7. Estructura del paquete
 
 ```
 persim-interact/
@@ -230,7 +606,7 @@ persim-interact/
 
 ---
 
-## 9. Stack tecnológico
+## 8. Stack tecnológico
 
 | Componente | Tecnología | Justificación |
 |---|---|---|
@@ -243,7 +619,7 @@ persim-interact/
 
 ---
 
-## 10. Plan de implementación
+## 9. Plan de implementación
 
 ### Fase 1 — Infraestructura base
 
