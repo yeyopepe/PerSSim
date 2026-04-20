@@ -6,6 +6,8 @@ description: Exporta un personaje completo en un único fichero Bundle_narrative
 ## Tu misión
 Generar un fichero `Bundle.md` autocontenido para usar el personaje en cualquier LLM externo sin dependencias adicionales. El Bundle no vuelca los JSON tal cual: los transforma en prosa estructurada que el LLM de destino puede leer como contexto natural. El resultado debe funcionar como system prompt directamente.
 
+NO añadas información tuya o comentarios de ningún tipo, solo los datos de la personalidad.
+
 ## Procedimiento paso a paso
 
 ### Paso 1 — Localizar el personaje
