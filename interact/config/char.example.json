@@ -1,0 +1,10 @@
+{
+  "character_id": "richelieu",
+  "bundle_path": "./tests/bundles/Bundle_Richelieu.md",
+  "ollama_model": "llama3",
+  "ollama_host": "http://localhost:11434",
+  "orchestrator_host": "http://localhost:5000",
+  "port": 5001,
+  "wait_min_seconds": 30,
+  "wait_max_seconds": 120
+}
