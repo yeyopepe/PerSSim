@@ -21,7 +21,7 @@ NO añadas información tuya o comentarios de ningún tipo, solo los datos de la
 ### Paso 2 — Leer todos los ficheros del personaje
 
 Lee en este orden:
-1. El `SYSTEM_PROMPT.md` final de la versión (por ejemplo `./simulation/v1.1/SYSTEM_PROMPT.md`).
+1. El `SYSTEM_PROMPT.md` del personaje/versión específico (por ejemplo `./simulation/v1.1/Impl/001/SYSTEM_PROMPT.md`).
 2. `Identity.json`
 3. `Profile.json`
 4. `Values.json`

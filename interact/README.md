@@ -17,7 +17,7 @@ interact/
     └── usage.md               ← comandos, interfaz de terminal, ejemplos
 ```
 
-El código fuente (paquete Python `persim-interact`) se añadirá en esta carpeta en fases posteriores.
+El código fuente (paquete Python `perssim-interact`) se añadirá en esta carpeta en fases posteriores.
 
 ## Documentación
 
@@ -36,9 +36,9 @@ El código fuente (paquete Python `persim-interact`) se añadirá en esta carpet
 ## Inicio rápido
 
 ```bash
-pip install persim-interact
+pip install perssim-interact
 
-persim-launch --session ./session.config.json
+perssim-launch --session ./session.config.json
 ```
 
 Ver [`docs/install.md`](docs/install.md) para la configuración completa.

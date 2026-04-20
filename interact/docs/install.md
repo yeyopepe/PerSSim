@@ -60,13 +60,13 @@ pip install -e .
 ### Desde PyPI (cuando esté publicado)
 
 ```bash
-pip install persim-interact
+pip install perssim-interact
 ```
 
 ### Verificar la instalación
 
 ```bash
-persim-launch --help
+perssim-launch --help
 ```
 
 Deberías ver el mensaje de ayuda con las opciones disponibles.
@@ -89,7 +89,7 @@ mi-sesion/
 └── logs/                   # Generado automáticamente
 ```
 
-> Puedes generar esta estructura con ficheros de ejemplo con: `persim-launch --init mi-sesion`
+> Puedes generar esta estructura con ficheros de ejemplo con: `perssim-launch --init mi-sesion`
 
 ---
 
@@ -104,6 +104,8 @@ Fichero principal. Define los personajes que participan, la ruta del log y la si
   "session_id": "sesion_001",
   "log_path":   "./logs/sesion_001.jsonl",
   "initial_situation": "París, 1635. El cardenal Richelieu y Giulio Mazarino se reúnen para debatir la estrategia de Francia frente a los Habsburgo.",
+  "turn_order": ["richelieu", "mazarin"],
+  "turn_timeout_seconds": 30,
   "characters": [
     { "id": "richelieu", "host": "localhost", "port": 5001, "config": "./chars/richelieu.config.json" },
     { "id": "mazarin",   "host": "localhost", "port": 5002, "config": "./chars/mazarin.config.json" }
@@ -122,13 +124,11 @@ Fichero de configuración individual de cada personaje.
   "ollama_model":      "llama3",
   "ollama_host":       "http://localhost:11434",
   "orchestrator_host": "http://localhost:5000",
-  "port":              5001,
-  "wait_min_seconds":  30,
-  "wait_max_seconds":  120
+  "port":              5001
 }
 ```
 
-> `wait_min_seconds` y `wait_max_seconds` controlan el rango de tiempo aleatorio que el personaje espera antes de decidir si interviene espontáneamente.
+> Los personajes solo responden cuando reciben `POST /turn` del orquestador.
 
 ### Preparar los Bundles
 
@@ -154,4 +154,4 @@ ollama list | grep llama3
 ollama run llama3 "Responde en una frase: ¿Qué es la razón de Estado?"
 ```
 
-> Si la respuesta tarda más de 30 segundos en el test rápido, considera aumentar `wait_min_seconds` en la configuración del personaje para evitar timeouts.
+> Si la respuesta tarda más de 30 segundos en el test rápido, considera aumentar `turn_timeout_seconds` en `session.config.json`.
