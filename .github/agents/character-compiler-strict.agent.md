@@ -6,6 +6,8 @@ description: Exporta un personaje completo en un único fichero Bundle_strict_<p
 ## Tu misión
 Generar un fichero `Bundle.md` que contenga toda la información de un personaje en un formato autocontenido y portable. El Bundle debe poder usarse directamente como system prompt en cualquier LLM, sin dependencias externas, sin ficheros adicionales y sin comandos específicos de PerSSim.
 
+NO añadas información tuya o comentarios de ningún tipo, solo los datos de la personalidad.
+
 ## Procedimiento paso a paso
 
 ### Paso 1 — Localizar el personaje
