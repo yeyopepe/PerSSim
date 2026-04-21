@@ -1,31 +1,46 @@
 # PerSSim — Interact
 
-Sistema multi-agente que instancia varios personajes PerSSim y los hace dialogar de forma autónoma o dirigida. Cada personaje corre como un servidor HTTP independiente coordinado por un orquestador central. Usa modelos locales vía Ollama.
+Sistema multi-agente que instancia varios personajes PerSSim y los hace dialogar de forma autónoma por turnos. Cada personaje corre como un servidor HTTP independiente coordinado por un orquestador central. Usa modelos locales vía Ollama.
 
 ## Cómo funciona
 
-Cada personaje se carga con su Bundle como system prompt y toma decisiones autónomas sobre cuándo intervenir. El orquestador distribuye las intervenciones, lleva el registro de la conversación y sirve de interfaz al usuario. El usuario puede introducir mensajes como narrador o congelar/reanudar el diálogo en cualquier momento.
+Cada personaje se carga con su Bundle como system prompt y mantiene su propia memoria de conversación (pila de mensajes). El orquestador define el orden de turnos, distribuye los mensajes entre personajes y gestiona los timeouts. El usuario puede introducir narración libre en cualquier momento.
 
 ## Estructura
 
 ```
 interact/
-├── README.md                  ← este fichero
+├── README.md
+├── perssim/                    ← paquete Python (perssim-interact)
+│   ├── char.py                 ← servidor FastAPI del personaje
+│   ├── orchestrator.py         ← servidor FastAPI del orquestador
+│   ├── launcher.py             ← lanzador de sesión (perssim-launch)
+│   ├── ollama_client.py        ← cliente async Ollama (httpx)
+│   ├── ollama_debug.py         ← logging de peticiones/respuestas Ollama
+│   ├── models.py               ← modelos Pydantic compartidos
+│   ├── tui.py                  ← interfaz de terminal (Rich)
+│   └── __init__.py
+├── config/                     ← plantillas de configuración
+│   ├── session.example.config.json
+│   └── char.example.config.json
+├── tests/                      ← tests automatizados y datos de prueba
+│   ├── bundles/
+│   ├── session_test/
+│   ├── test_char_turns.py
+│   └── test_orchestrator_turns.py
 └── docs/
-    ├── design.md              ← arquitectura, endpoints, modelos de datos, plan de implementación
-    ├── install.md             ← requisitos, instalación, configuración
-    └── usage.md               ← comandos, interfaz de terminal, ejemplos
+    ├── design.md               ← arquitectura, endpoints, configuración
+    ├── install.md              ← instalación y configuración de sesión
+    └── usage.md                ← comandos, ejemplos, resolución de problemas
 ```
-
-El código fuente (paquete Python `perssim-interact`) se añadirá en esta carpeta en fases posteriores.
 
 ## Documentación
 
 | Documento | Contenido |
 |---|---|
-| [`docs/design.md`](docs/design.md) | Arquitectura completa, API de endpoints, ficheros de configuración y plan de implementación por fases |
+| [`docs/design.md`](docs/design.md) | Arquitectura completa, flujo de turnos, API de endpoints y referencia de configuración |
 | [`docs/install.md`](docs/install.md) | Requisitos previos, instalación del paquete y configuración de una sesión |
-| [`docs/usage.md`](docs/usage.md) | Comandos del sistema, intervención del narrador, ejemplos de sesión y resolución de problemas |
+| [`docs/usage.md`](docs/usage.md) | Comandos del sistema, intervención del narrador y resolución de problemas |
 
 ## Requisitos
 
@@ -36,9 +51,10 @@ El código fuente (paquete Python `perssim-interact`) se añadirá en esta carpe
 ## Inicio rápido
 
 ```bash
-pip install perssim-interact
+cd interact
+pip install -e .
 
-perssim-launch --session ./session.config.json
+perssim-launch --session ./sessions/test-session-001/session.config.json
 ```
 
 Ver [`docs/install.md`](docs/install.md) para la configuración completa.

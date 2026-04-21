@@ -1,9 +1,17 @@
 {
+  "_doc": {
+    "character_id": "ID único del personaje. Debe coincidir con el usado en session.config.json y turn_order.",
+    "bundle_path": "Ruta al fichero Bundle Markdown del personaje exportado desde simulation/. Relativa al directorio del char.config.json.",
+    "ollama_model": "Nombre del modelo Ollama a usar para este personaje (ej: llama3, gemma3:latest, qwen2.5).",
+    "ollama_host": "URL base del servidor Ollama. Por defecto: http://localhost:11434.",
+    "orchestrator_host": "URL base del orquestador. Por defecto: http://localhost:5000.",
+    "port": "Puerto en el que correrá el servidor de este personaje. Debe ser único por personaje.",
+    "nota": "Los parámetros ollama_debug, ollama_debug_log y max_character_history se propagan automáticamente desde session.config.json vía el launcher. No es necesario definirlos aquí."
+  },
   "character_id": "richelieu",
-  "bundle_path": "./tests/bundles/Bundle_Richelieu.md",
+  "bundle_path": "./bundles/Bundle_Richelieu.md",
   "ollama_model": "llama3",
   "ollama_host": "http://localhost:11434",
   "orchestrator_host": "http://localhost:5000",
-  "port": 5001,
-  "notes": "Los personajes responden solo a /turn; no tienen temporizadores locales"
+  "port": 5001
 }

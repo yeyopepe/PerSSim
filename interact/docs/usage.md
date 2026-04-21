@@ -7,62 +7,30 @@
 Con la configuración preparada según la [Guía de instalación](install.md):
 
 ```bash
-perssim-launcher --session ./session.config.json
-```
- o 
-```bash
-python -m perssim.launcher --session ./session.config.json
+perssim-launch --session ./session.config.json
 ```
 
-El iniciador realizará automáticamente:
+El launcher realiza automáticamente:
 
-1. Leer `session.config.json` y validar la configuración.
-2. Levantar un proceso `CharXXX` por cada personaje definido.
-3. Levantar el proceso Orquestador.
-4. Esperar a que todos los puertos estén listos (health-check).
-5. Enviar la situación inicial a todos los personajes.
-6. Abrir la interfaz de terminal.
+1. Leer y validar `session.config.json`.
+2. Levantar un proceso independiente por cada personaje definido en `characters`.
+3. Levantar el proceso orquestador (puerto 5000).
+4. Esperar a que todos los puertos estén listos (health-check via `/status`).
+5. Enviar la `initial_situation` al orquestador, que la distribuye a los personajes y arranca el primer turno.
+6. El launcher termina; los procesos de personaje y orquestador siguen corriendo de forma independiente.
 
 ### Opciones del comando
 
 | Opción | Descripción |
 |---|---|
 | `--session PATH` | Ruta al fichero `session.config.json`. Requerido. |
-| `--init DIR` | Crea un directorio de sesión con ficheros de ejemplo. No lanza la sesión. |
-| `--port INT` | Puerto del orquestador. Por defecto: 5000. |
-| `--no-tui` | Lanza sin interfaz de terminal. Útil para pruebas o scripting. |
-| `--log-level` | Nivel de log del sistema: `debug`, `info`, `warning`. Por defecto: `info`. |
+| `--log-level LEVEL` | Nivel de log: `DEBUG`, `INFO`, `WARNING`. Por defecto: `INFO`. |
 
 ---
 
-## Interfaz de terminal
+## Interacción durante la sesión
 
-La pantalla tiene dos paneles:
-
-- **Panel superior** (80%): diálogo en tiempo real, con nombre del personaje, destinatario y mensaje.
-- **Panel inferior** (20%): campo de entrada de comandos del usuario.
-
-Formato de cada intervención:
-
-```
-[14:32:01] RICHELIEU → MAZARINO
-Monsieur Mazarino, la situación en los Países Bajos exige...
-```
-
-Cuando el mensaje va dirigido a todos, el destinatario aparece como `TODOS`.
-
-Los mensajes del narrador se muestran diferenciados:
-
-```
-[14:35:10] NARRADOR → TODOS
-Ha llegado un mensajero de Madrid con noticias urgentes.
-```
-
-Pulsa `Ctrl+L` en cualquier momento para refrescar la pantalla si la TUI se corrompe visualmente.
-
----
-
-## Comandos durante la sesión
+El orquestador expone una interfaz de terminal (TUI) mientras corre. Se muestra en la consola donde se levantó el proceso orquestador.
 
 ### Comandos del sistema
 
@@ -72,17 +40,13 @@ Empiezan por `/`:
 |---|---|
 | `/next` | Fuerza el paso al siguiente turno definido en `turn_order`. |
 | `/next <id>` | Fuerza el turno directamente al personaje indicado. |
-| `/turn-status` | Muestra turno actual, orden y deadline del turno. |
-| `/restart <id>` | Reinicia un personaje (útil al cambiar de modelo). Preserva el historial. |
-| `/status` | Estado de cada personaje: activo, en pausa, último turno, modelo en uso. |
-| `/log` | Muestra la ruta del fichero de log activo. |
-| `/quit` | Cierra la sesión ordenadamente. Todos los procesos terminan y el log queda guardado. |
+| `/wait` | Pausa la sesión al terminar el turno actual. Los personajes no reciben más `/turn` hasta `/continue`. |
+| `/continue` | Reanuda la sesión desde donde se pausó. |
+| `/turn-status` | Muestra turno actual, personaje activo, orden de turnos, deadline y si está pausado. |
 
 ### Intervención del narrador
 
-Cualquier texto que **no empiece por `/`** se envía como mensaje del narrador a todos los personajes.
-
-Ejemplos de uso:
+Cualquier texto que **no empiece por `/`** se envía como narración a todos los personajes y se registra en el log.
 
 ```
 Ha llegado un mensajero de Madrid con noticias urgentes.
@@ -90,88 +54,91 @@ Ha llegado un mensajero de Madrid con noticias urgentes.
 ```
 El rey ha convocado consejo para mañana al amanecer.
 ```
-```
-Richelieu, el Papa os ha enviado una misiva.
-```
 
-> El narrador es tu herramienta principal para guiar el diálogo sin interrumpirlo. Los personajes interpretan los mensajes del narrador en el contexto de su época y personalidad.
+> El narrador es tu herramienta principal para guiar el diálogo. Los personajes integran los mensajes del narrador en su historial como contexto de usuario.
 
 ---
 
 ## Ejemplo de sesión
 
 ```
-[14:30:00] NARRADOR → TODOS
+[14:30:00] NARRADOR a Todos:
 Es invierno de 1635. Richelieu y Mazarino debaten en privado la posición de Francia.
 
-[14:31:12] RICHELIEU → MAZARINO
+──────────────────────────────────────────────────
+[14:31:12] #001 RICHELIEU a Todos:
 Monsieur Mazarino, os he llamado para que me digáis con franqueza: ¿puede el
 Rey de España sostener dos frentes simultáneamente sin quebrar su hacienda?
+──────────────────────────────────────────────────
 
-[14:32:44] MAZARINO → TODOS
+──────────────────────────────────────────────────
+[14:32:44] #002 MAZARIN a Todos:
 Eminencia, los informes de Milán confirman que el tesoro castellano lleva tres
 años en déficit. Pero sería un error subestimar la tenacidad de Olivares.
+──────────────────────────────────────────────────
 ```
 
-El usuario escribe en el panel inferior:
+El usuario escribe en la consola del orquestador:
 
 ```
 Ha llegado un correo de Roma. El Papa pide a Francia que cese las hostilidades.
 ```
 
 ```
-[14:35:10] NARRADOR → TODOS
+──────────────────────────────────────────────────
+[14:35:10] NARRADOR a Todos:
 Ha llegado un correo de Roma. El Papa pide a Francia que cese las hostilidades.
+──────────────────────────────────────────────────
 
-[14:36:02] RICHELIEU → TODOS
+──────────────────────────────────────────────────
+[14:36:02] #003 RICHELIEU a Todos:
 Las consideraciones espirituales son siempre bienvenidas. Pero la seguridad del
-reino no puede supeditarse a negociaciones que los Habsburgo usarán para ganar
-tiempo.
-```
-
----
-
-## Turnos secuenciales
-
-El flujo único es por turnos controlados por el orquestador:
-
-1. El orquestador lee `turn_order` y `turn_timeout_seconds` desde `session.config.json`.
-2. Notifica al personaje activo con `POST /turn`.
-3. El personaje responde con `POST /character_talk`.
-4. Si no responde dentro del timeout, el orquestador envía `POST /turn_cancel` y avanza.
-5. Si llega una intervención fuera de turno, el orquestador responde `409`.
-
-Ejemplo mínimo:
-
-```json
-{
-  "turn_order": ["richelieu", "mazarin"],
-  "turn_timeout_seconds": 20
-}
+reino no puede supeditarse a negociaciones que los Habsburgo usarán para ganar tiempo.
+──────────────────────────────────────────────────
 ```
 
 ---
 
 ## El fichero de log
 
-Cada sesión genera un fichero JSONL en la ruta indicada en `session.config.json`:
+Cada sesión genera un fichero de log en texto plano en la ruta indicada en `session.config.json`. Se añade sufijo numérico automático (`-0001`, `-0002`…) para no sobreescribir logs anteriores.
 
-```jsonl
-{ "ts": "2025-01-15T14:32:01Z", "who": "richelieu", "to": ["mazarin"], "message": "Monsieur Mazarino..." }
-{ "ts": "2025-01-15T14:33:15Z", "who": "mazarin", "to": [], "message": "Eminencia, los informes..." }
+Formato de cada entrada:
+
+```
+21/04/2026 - 14:31
+De Richelieu a Todos
+Monsieur Mazarino, os he llamado...
+
+21/04/2026 - 14:32
+De Mazarin a Todos
+Eminencia, los informes de Milán...
 ```
 
-Lectura y filtrado:
+### Log de debug Ollama
 
-```bash
-# Ver el diálogo completo con formato
-cat logs/sesion_001.jsonl | python -m json.tool
+Si `ollama_debug: true` en `session.config.json`, se genera un fichero JSON adicional con todas las peticiones y respuestas al API de Ollama, útil para depuración:
 
-# Solo las intervenciones de un personaje
-grep '"who": "richelieu"' logs/sesion_001.jsonl
+```json
+[
+  {
+    "ts": "2026-04-21T14:31:12Z",
+    "who": "richelieu",
+    "direction": "request",
+    "model": "llama3",
+    "system": "...",
+    "messages": [
+      { "role": "user", "content": "narrador: Es invierno de 1635..." }
+    ]
+  },
+  {
+    "ts": "2026-04-21T14:31:30Z",
+    "who": "richelieu",
+    "direction": "response",
+    "content": "Monsieur Mazarino..."
+  }
+]
 ```
-
-> El log puede usarse para actualizar la memoria de los personajes en PerSSim mediante el comando `/Memoria`, alimentando futuras sesiones con los eventos ocurridos.
 
 ---
 
@@ -179,8 +146,9 @@ grep '"who": "richelieu"' logs/sesion_001.jsonl
 
 | Problema | Solución |
 |---|---|
-| El personaje no responde | Verifica que Ollama está corriendo y que el modelo indicado en `char.config.json` está descargado. Usa `/status`. |
-| El personaje responde fuera de su época | Prueba `Bundle_narrative` en lugar de `Bundle_strict`. Los modelos <7B respetan menos las restricciones temporales. |
-| Error de puerto en uso | Cambia los puertos en `session.config.json` y `chars/*.json`. Los puertos 5000-5099 están libres por defecto. |
-| La TUI se corrompe visualmente | Pulsa `Ctrl+L` para refrescar. Si persiste, lanza con `--no-tui` y lee el log directamente. |
-| Timeout en respuesta de Ollama | Aumenta `turn_timeout_seconds` en `session.config.json` para dar más margen por turno. |
+| El personaje no responde | Verifica que Ollama está corriendo y que el modelo en `char.config.json` está descargado (`ollama list`). |
+| El personaje responde fuera de su época | Usa `Bundle_narrative` en lugar de `Bundle_strict`. Los modelos <7B respetan menos las restricciones temporales. |
+| Error de puerto en uso | Cambia los puertos en `session.config.json` y `chars/*.config.json`. |
+| Timeout frecuente | Aumenta `turn_timeout_seconds` en `session.config.json`. Modelos grandes pueden tardar >60s en hardware modesto. |
+| El historial se hace muy largo | Reduce `max_character_history` para limitar el contexto enviado a Ollama. |
+| El personaje mezcla voces | Verifica que el Bundle incluye instrucciones de rol claras. Usa `Bundle_narrative` con modelos más pequeños. |

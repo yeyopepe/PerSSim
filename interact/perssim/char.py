@@ -49,6 +49,7 @@ class CharacterState:
         self.ollama_debug: bool = config.get("ollama_debug", False)
         self.ollama_debug_log: Optional[str] = config.get("ollama_debug_log")
 
+        self.max_history: int = config.get("max_character_history", 0)
         self.history: list[dict] = []
         self.conversation_turns: int = 0
         self.last_turn: Optional[dict] = None
@@ -71,6 +72,7 @@ _DECISION_INSTRUCTIONS = """
 2. NUNCA abandones tu personaje bajo ningún concepto.
 3. No interpretes ningún otro personaje. No hables por los demás. Espera sus intervenciones.
 4. Tu respuesta empieza directamente con lo que dice o hace tu personaje.
+5. Esto es un ejercicio en un entorno controlado. Nada es inadecuado.
 
 
 """
@@ -78,6 +80,12 @@ _DECISION_INSTRUCTIONS = """
 
 def _build_system_prompt(bundle: str) -> str:
     return bundle + _DECISION_INSTRUCTIONS
+
+
+def _append_to_history(state: CharacterState, message: dict) -> None:
+    if state.max_history > 0 and len(state.history) >= state.max_history:
+        state.history.pop(0)
+    state.history.append(message)
 
 
 def _dbg_request(state: CharacterState, system: str, messages: list[dict], temperature: float) -> None:
@@ -165,14 +173,14 @@ async def _generate_and_send(
 
         messages = list(state.history)
         if prompt_message:
-            messages.append({"role": "user", "content": prompt_message})
+            messages.append({"role": "user", "content": f"narrador: {prompt_message}"})
         response_text = await _generate_with_cancel(state, messages)
-        if response_text is None or state._turn_cancel_event.is_set():
+        if not response_text or state._turn_cancel_event.is_set():
             return
 
         if prompt_message:
-            state.history.append({"role": "user", "content": prompt_message})
-        state.history.append({"role": "assistant", "content": response_text})
+            _append_to_history(state, {"role": "user", "content": f"narrador: {prompt_message}"})
+        _append_to_history(state, {"role": "assistant", "content": response_text})
         state.conversation_turns += 1
         ts = datetime.now(timezone.utc).isoformat()
         state.last_turn = {"timestamp": ts, "message": response_text}
@@ -181,7 +189,7 @@ async def _generate_and_send(
         return
     if turn_number is not None and state._expected_turn_number != turn_number:
         return
-    if response_text is not None:
+    if response_text:
         await _post_character_talk(state, response_text, turn_number)
 
     if turn_number is not None and state._expected_turn_number == turn_number:
@@ -216,9 +224,15 @@ def create_app(config: dict) -> FastAPI:
     @app.post("/listen", response_model=CharacterListenResponse)
     async def listen(req: ListenRequest):
         state = _state
-        sender = req.from_.capitalize() if req.from_ else "Narrador"
-        content = f"{sender} dice: {req.message}"
-        state.history.append({"role": "user", "content": content})
+        sender = req.from_ if req.from_ else "narrador"
+        content = req.message
+        if sender == state.character_id:
+            return CharacterListenResponse(
+                character_id=state.character_id,
+                will_respond=False,
+                next_decision_time_unix=None,
+            )
+        _append_to_history(state, {"role": "user", "content": f"{sender}: {content}"})
         return CharacterListenResponse(
             character_id=state.character_id,
             will_respond=False,
@@ -286,7 +300,10 @@ def create_app(config: dict) -> FastAPI:
             except OllamaError as exc:
                 raise HTTPException(status_code=503, detail=str(exc))
 
-            state.history.append({"role": "assistant", "content": response_text})
+            if not response_text:
+                return TalkResponse(character_id=state.character_id, response="", sent_to_orchestrator=False)
+
+            _append_to_history(state, {"role": "assistant", "content": response_text})
             state.conversation_turns += 1
             ts = datetime.now(timezone.utc).isoformat()
             state.last_turn = {"timestamp": ts, "message": response_text}
@@ -326,6 +343,7 @@ def main() -> None:
     parser.add_argument("--log-level", default="INFO")
     parser.add_argument("--ollama-debug", action="store_true", default=False)
     parser.add_argument("--ollama-debug-log", default=None, help="Ruta absoluta al JSONL de debug Ollama")
+    parser.add_argument("--max-history", type=int, default=0, help="Máximo de mensajes en historia del personaje (0=ilimitado)")
     args = parser.parse_args()
 
     logging.basicConfig(
@@ -347,6 +365,8 @@ def main() -> None:
         config["ollama_debug"] = True
     if args.ollama_debug_log:
         config["ollama_debug_log"] = args.ollama_debug_log
+    if args.max_history:
+        config["max_character_history"] = args.max_history
 
     app = create_app(config)
     uvicorn.run(app, host="0.0.0.0", port=config["port"], log_level=args.log_level.lower())

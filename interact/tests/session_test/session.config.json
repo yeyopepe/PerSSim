@@ -1,23 +1,24 @@
 {
   "session_id": "test_richelieu_mazarin",
   "log_path": "./logs/test_richelieu_mazarin.log",
+  "max_character_history": 20,
+  "ollama_debug": true,
+  "ollama_debug_log": "./logs/test_richelieu_mazarin_ollama.json",
   "initial_situation": "París, 1635. El cardenal Richelieu y Mazarino se reúnen en privado en el Palais-Cardinal para discutir la situación de la guerra en el norte de Europa. La vela proyecta sombras largas sobre los mapas extendidos sobre la mesa. Francia acaba de declarar la guerra a España.",
   "turn_order": ["richelieu", "mazarin"],
   "turn_timeout_seconds": 120,
-  "ollama_debug": true,
-  "ollama_debug_log": "../logs/test-session-ollama.json",
   "characters": [
     {
       "id": "richelieu",
       "host": "localhost",
       "port": 5001,
-      "config": "./tests/session_test/richelieu.json"
+      "config": "./tests/session_test/richelieu.config.json"
     },
     {
       "id": "mazarin",
       "host": "localhost",
       "port": 5002,
-      "config": "./tests/session_test/mazarin.json"
+      "config": "./tests/session_test/mazarin.config.json"
     }
   ]
 }

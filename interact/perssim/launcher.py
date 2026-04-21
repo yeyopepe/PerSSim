@@ -97,11 +97,13 @@ def _launch_orchestrator(
 def _launch_character(
     config_path: str, log_level: str,
     ollama_debug: bool, ollama_debug_log: Optional[str],
+    max_history: int = 0,
 ) -> subprocess.Popen:
     cmd = [
         sys.executable, "-m", "perssim.char",
         "--config", config_path,
         "--log-level", log_level,
+        "--max-history", str(max_history),
         *_debug_args(ollama_debug, ollama_debug_log),
     ]
     logger.info("Arrancando personaje: %s", " ".join(cmd))
@@ -149,6 +151,7 @@ async def run(session_path: str, log_level: str) -> None:
         log_path = get_next_log_path(log_path)
         logger.info("Session log: %s", log_path)
 
+    max_character_history: int = session.get("max_character_history", 0)
     ollama_debug: bool = session.get("ollama_debug", False)
     ollama_debug_log: Optional[str] = session.get("ollama_debug_log")
     if ollama_debug_log and not Path(ollama_debug_log).is_absolute():
@@ -178,7 +181,7 @@ async def run(session_path: str, log_level: str) -> None:
             if not config_path:
                 logger.warning("Personaje %s sin config; omitiendo.", char.get("id"))
                 continue
-            proc = _launch_character(config_path, log_level, ollama_debug, ollama_debug_log)
+            proc = _launch_character(config_path, log_level, ollama_debug, ollama_debug_log, max_character_history)
             processes.append(proc)
 
         # 3. Health checks

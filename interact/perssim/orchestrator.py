@@ -68,6 +68,7 @@ class OrchestratorState:
 
         self.sequence_id: int = 0
         self._turns_started: bool = False
+        self._paused: bool = False
         self.tui: TUI = TUI()
         self.unreachable_characters: set[str] = set()
 
@@ -202,7 +203,10 @@ class OrchestratorState:
             next_character = self.current_character()
             next_turn = self.current_turn_number
 
-        await self._notify_turn(next_character)
+        if not self._paused or force_to is not None:
+            await self._notify_turn(next_character)
+        else:
+            self.log_event("TURN_PAUSED", f"turn_number={next_turn}, character={next_character}")
         return {"next_character": next_character, "turn_number": next_turn}
 
 
@@ -252,7 +256,7 @@ async def _stdin_command_loop(state: OrchestratorState) -> None:
         if line.startswith("/"):
             parts = line[1:].split(maxsplit=1)
             cmd = parts[0].lower()
-            arg = parts[1] if len(parts) > 1 else None
+            arg = parts[1].lower() if len(parts) > 1 else None
             if cmd == "next":
                 result = await state._advance_turn(reason="forced", force_to=arg)
                 state.tui.print_system(
@@ -260,10 +264,23 @@ async def _stdin_command_loop(state: OrchestratorState) -> None:
                 )
             elif cmd == "turn-status":
                 current = state.current_character()
+                paused_str = " [PAUSADO]" if state._paused else ""
                 state.tui.print_system(
                     f"turn={state.current_turn_number} current={current} "
-                    f"order={state.turn_order} deadline={state.current_deadline_unix}"
+                    f"order={state.turn_order} deadline={state.current_deadline_unix}{paused_str}"
                 )
+            elif cmd == "wait":
+                state._paused = True
+                state.log_event("SESSION_PAUSED", "usuario pausó la sesión")
+                state.tui.print_system("Sesión pausada. Los turnos se detendrán al terminar el actual.")
+            elif cmd == "continue":
+                if state._paused:
+                    state._paused = False
+                    state.log_event("SESSION_RESUMED", "usuario reanudó la sesión")
+                    state.tui.print_system("Sesión reanudada.")
+                    await state._notify_turn(state.current_character())
+                else:
+                    state.tui.print_system("La sesión no estaba pausada.")
             else:
                 state.tui.print_system(f"Comando desconocido: /{cmd}", style="bold red")
         else:

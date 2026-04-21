@@ -10,8 +10,6 @@ Se requiere Python 3.11 o superior.
 python --version
 ```
 
-Si necesitas instalar Python: https://www.python.org/downloads/
-
 ### Ollama
 
 Ollama debe estar instalado y corriendo localmente en el puerto 11434 (por defecto).
@@ -32,11 +30,11 @@ Descarga al menos un modelo antes de lanzar sesiones:
 
 ```bash
 ollama pull llama3
-ollama pull mistral
+ollama pull gemma3
 ollama pull qwen2.5
 ```
 
-> Para personajes históricos con mucho contexto, modelos con ventana de contexto grande (>8K tokens) producen resultados más coherentes. Se recomienda `llama3` o `qwen2.5` como punto de partida.
+> Para personajes históricos con mucho contexto, modelos con ventana de contexto grande (>8K tokens) producen resultados más coherentes.
 
 ---
 
@@ -57,39 +55,27 @@ source .venv/bin/activate      # macOS / Linux
 pip install -e .
 ```
 
-### Desde PyPI (cuando esté publicado)
-
-```bash
-pip install perssim-interact
-```
-
 ### Verificar la instalación
 
 ```bash
 perssim-launch --help
 ```
 
-Deberías ver el mensaje de ayuda con las opciones disponibles.
-
 ---
 
 ## Estructura de directorios de trabajo
 
-Una vez instalado, crea una carpeta de trabajo para tu sesión:
-
 ```
 mi-sesion/
-├── session.config.json            # Configuración de la sesión
-├── bundles/                # Ficheros Bundle de los personajes
+├── session.config.json     ← configuración de la sesión
+├── bundles/                ← ficheros Bundle de los personajes
 │   ├── Bundle_Richelieu.md
 │   └── Bundle_Mazarin.md
-├── chars/                  # Configuración de cada personaje
+├── chars/                  ← configuración individual de cada personaje
 │   ├── richelieu.config.json
 │   └── mazarin.config.json
-└── logs/                   # Generado automáticamente
+└── logs/                   ← generado automáticamente al lanzar
 ```
-
-> Puedes generar esta estructura con ficheros de ejemplo con: `perssim-launch --init mi-sesion`
 
 ---
 
@@ -97,15 +83,18 @@ mi-sesion/
 
 ### `session.config.json`
 
-Fichero principal. Define los personajes que participan, la ruta del log y la situación inicial.
+Fichero principal. Define los personajes, la situación inicial y los parámetros de sesión.
 
 ```json
 {
   "session_id": "sesion_001",
-  "log_path":   "./logs/sesion_001.jsonl",
+  "log_path": "./logs/sesion_001.log",
+  "max_character_history": 20,
+  "ollama_debug": false,
+  "ollama_debug_log": "./logs/sesion_001_ollama.json",
   "initial_situation": "París, 1635. El cardenal Richelieu y Giulio Mazarino se reúnen para debatir la estrategia de Francia frente a los Habsburgo.",
   "turn_order": ["richelieu", "mazarin"],
-  "turn_timeout_seconds": 30,
+  "turn_timeout_seconds": 60,
   "characters": [
     { "id": "richelieu", "host": "localhost", "port": 5001, "config": "./chars/richelieu.config.json" },
     { "id": "mazarin",   "host": "localhost", "port": 5002, "config": "./chars/mazarin.config.json" }
@@ -113,31 +102,31 @@ Fichero principal. Define los personajes que participan, la ruta del log y la si
 }
 ```
 
+Referencia de parámetros en [`docs/design.md`](design.md#5-configuración).
+
 ### `chars/richelieu.config.json`
 
-Fichero de configuración individual de cada personaje.
+Configuración individual de cada personaje.
 
 ```json
 {
-  "character_id":      "richelieu",
-  "bundle_path":       "./bundles/Bundle_Richelieu.md",
-  "ollama_model":      "llama3",
-  "ollama_host":       "http://localhost:11434",
+  "character_id": "richelieu",
+  "bundle_path": "./bundles/Bundle_Richelieu.md",
+  "ollama_model": "llama3",
+  "ollama_host": "http://localhost:11434",
   "orchestrator_host": "http://localhost:5000",
-  "port":              5001
+  "port": 5001
 }
 ```
 
-> Los personajes solo responden cuando reciben `POST /turn` del orquestador.
-
 ### Preparar los Bundles
 
-Cada personaje necesita un fichero Bundle exportado desde PerSSim, disponible en `Impl/<código>/Bundles/`:
+Cada personaje necesita un fichero Bundle exportado desde PerSSim, disponible en `simulation/v1.1/Impl/<código>/Bundles/`:
 
 - `Bundle_strict_<nombre>.md` — formato JSON estructurado, más preciso.
 - `Bundle_narrative_<nombre>.md` — formato narrativo en prosa, más portable entre modelos.
 
-> Si cambias de modelo Ollama, el formato `Bundle_narrative` es generalmente más robusto entre distintos modelos que el `Bundle_strict`.
+> Si cambias de modelo Ollama, el formato `Bundle_narrative` es generalmente más robusto entre distintos modelos.
 
 ---
 
