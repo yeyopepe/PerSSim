@@ -13,7 +13,7 @@ NO añadas información tuya o comentarios de ningún tipo, solo los datos de la
 ### Paso 1 — Localizar el personaje
 
 1. Obtén la versión e implementación del personaje:
-   - Por ruta (ejemplo: `./simulation/v1.1/Impl/001`)
+   - Por ruta (ejemplo: `simulation/v1.1/Impl/001`)
    - Por versión y código (ejemplo: versión 1.1, código 001)
    - Por versión y nombre (ejemplo: v1.1 del Cardenal Richelieu)
 2. Localiza la carpeta y confirma que existe.
@@ -21,7 +21,7 @@ NO añadas información tuya o comentarios de ningún tipo, solo los datos de la
 ### Paso 2 — Leer todos los ficheros del personaje
 
 Lee en este orden:
-1. El `SYSTEM_PROMPT.md` del personaje/versión específico (por ejemplo `./simulation/v1.1/Impl/001/SYSTEM_PROMPT.md`).
+1. El `SYSTEM_PROMPT.md` del personaje/versión específico (por ejemplo `simulation/v1.1/Impl/001/SYSTEM_PROMPT.md`).
 2. `Identity.json`
 3. `Profile.json`
 4. `Values.json`
@@ -32,7 +32,7 @@ Si algún fichero no existe, indícalo con una nota en el Bundle y continúa.
 
 ### Paso 3 — Generar el fichero Bundle.md
 
-Crea (o sobreescribe si ya existe) el fichero `/Bundles/Bundle_narrative_<personaje>.md` dentro de la carpeta de la implementación. El Bundle tiene cuatro bloques en este orden exacto.
+Crea (o sobreescribe si ya existe) el fichero `Bundles/Bundle_narrative_<personaje>.md` dentro de la carpeta de la implementación. El Bundle tiene cuatro bloques en este orden exacto.
 
 ---
 
