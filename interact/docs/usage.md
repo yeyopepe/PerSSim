@@ -16,7 +16,7 @@ El launcher realiza automáticamente:
 2. Levantar un proceso independiente por cada personaje definido en `characters`.
 3. Levantar el proceso orquestador (puerto 5000).
 4. Esperar a que todos los puertos estén listos (health-check via `/status`).
-5. Enviar la `initial_situation` al orquestador, que la distribuye a los personajes y arranca el primer turno.
+5. Enviar a cada personaje su `initial_situation` personalizada via `/listen` y arrancar el primer turno via `/start_turns` en el orquestador.
 6. El launcher termina; los procesos de personaje y orquestador siguen corriendo de forma independiente.
 
 ### Opciones del comando

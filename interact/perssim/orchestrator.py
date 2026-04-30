@@ -37,10 +37,12 @@ class OrchestratorState:
     def __init__(self, session: dict) -> None:
         self.session_id: str = session["session_id"]
         self.log_path: Path = Path(session["log_path"])
-        self.initial_situation: str = session.get("initial_situation", "")
-
         self.characters: dict[str, dict] = {
-            c["id"]: {"host": c["host"], "port": c["port"]}
+            c["id"]: {
+                "host": c["host"],
+                "port": c["port"],
+                "initial_situation": c.get("initial_situation", ""),
+            }
             for c in session.get("characters", [])
         }
         self.turn_order: list[str] = session.get("turn_order", [])
@@ -299,7 +301,10 @@ def create_app(session: dict) -> FastAPI:
         _state = OrchestratorState(session)
         _state.tui.print_banner(_state.session_id, list(_state.characters.keys()))
         asyncio.create_task(_stdin_command_loop(_state), name="stdin_loop")
-        if not _state.initial_situation:
+        has_initial_situations = any(
+            info.get("initial_situation") for info in _state.characters.values()
+        )
+        if not has_initial_situations:
             _state._turns_started = True
             asyncio.create_task(_state._notify_turn(_state.current_character()), name="turn_bootstrap")
         logger.info("Orquestador listo. Sesión: %s", _state.session_id)
@@ -386,6 +391,16 @@ def create_app(session: dict) -> FastAPI:
             "turn_number": state.current_turn_number,
             "deadline_unix": state.current_deadline_unix,
         }
+
+    @app.post("/start_turns")
+    async def start_turns():
+        state = _state
+        if not state._turns_started:
+            state._turns_started = True
+            asyncio.create_task(
+                state._notify_turn(state.current_character()), name="turn_bootstrap"
+            )
+        return {"status": "started", "turn_number": state.current_turn_number}
 
     @app.post("/narrate", response_model=NarrateResponse)
     async def narrate(req: NarrateRequest):

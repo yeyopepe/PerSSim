@@ -92,12 +92,11 @@ Fichero principal. Define los personajes, la situación inicial y los parámetro
   "max_character_history": 20,
   "ollama_debug": false,
   "ollama_debug_log": "./logs/sesion_001_ollama.json",
-  "initial_situation": "París, 1635. El cardenal Richelieu y Giulio Mazarino se reúnen para debatir la estrategia de Francia frente a los Habsburgo.",
   "turn_order": ["richelieu", "mazarin"],
   "turn_timeout_seconds": 60,
   "characters": [
-    { "id": "richelieu", "host": "localhost", "port": 5001, "config": "./chars/richelieu.config.json" },
-    { "id": "mazarin",   "host": "localhost", "port": 5002, "config": "./chars/mazarin.config.json" }
+    { "id": "richelieu", "host": "localhost", "port": 5001, "config": "./chars/richelieu.config.json", "initial_situation": "París, 1635. Eres el cardenal Richelieu. Te reúnes con Mazarino para debatir la estrategia de Francia frente a los Habsburgo." },
+    { "id": "mazarin",   "host": "localhost", "port": 5002, "config": "./chars/mazarin.config.json",   "initial_situation": "París, 1635. Eres Giulio Mazarino. Te reúnes con el cardenal Richelieu para debatir la estrategia de Francia frente a los Habsburgo." }
   ]
 }
 ```

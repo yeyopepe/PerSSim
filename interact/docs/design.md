@@ -29,16 +29,16 @@ sequenceDiagram
         L->>Cb: GET /status
     end
 
-    L->>O: POST /narrate {initial_situation}
+    L->>Ca: POST /listen {from: null, message: initial_situation_A}
+    L->>Cb: POST /listen {from: null, message: initial_situation_B}
+    L->>O: POST /start_turns
     Note over L: Launcher termina aquí
 
-    O->>Ca: POST /listen {from: null, message: initial_situation}
-    O->>Cb: POST /listen {from: null, message: initial_situation}
     O->>Ca: POST /turn {turn_number: 1, deadline_unix}
     Note over O,Cb: Los turnos arrancan; orquestador sigue corriendo
 ```
 
-> Si `initial_situation` está vacío, el orquestador arranca el primer turno directamente al levantarse, sin esperar `/narrate`.
+> Si ningún personaje tiene `initial_situation`, el orquestador arranca el primer turno directamente al levantarse, sin esperar `/start_turns`.
 
 ## 3. Ciclo de turno
 
@@ -146,7 +146,8 @@ El parámetro `max_character_history` limita el tamaño de esta pila: cuando se 
 | `/character_talk` | POST | Recibe intervención del personaje activo; rechaza fuera de turno con 409. |
 | `/next` | POST | Fuerza avanzar al siguiente turno o al personaje indicado en `force_to`. |
 | `/turn_status` | GET | Estado actual: `turn_order`, personaje actual, número de turno, deadline. |
-| `/narrate` | POST | Envía narración a todos los personajes via `/listen` y arranca el primer turno. |
+| `/narrate` | POST | Envía narración a todos los personajes via `/listen`. |
+| `/start_turns` | POST | Arranca el primer turno tras enviar las situaciones iniciales; idempotente. |
 | `/status` | GET | Health check del orquestador. |
 
 ### Personaje (`port`: definido en `char.config.json`)
@@ -171,12 +172,11 @@ Fichero principal de sesión. Leído por el launcher y el orquestador.
   "max_character_history": 20,
   "ollama_debug": false,
   "ollama_debug_log": "./logs/session_001_ollama.json",
-  "initial_situation": "París, 1635...",
   "turn_order": ["richelieu", "mazarin"],
   "turn_timeout_seconds": 60,
   "characters": [
-    { "id": "richelieu", "host": "localhost", "port": 5001, "config": "./chars/richelieu.config.json" },
-    { "id": "mazarin",   "host": "localhost", "port": 5002, "config": "./chars/mazarin.config.json" }
+    { "id": "richelieu", "host": "localhost", "port": 5001, "config": "./chars/richelieu.config.json", "initial_situation": "París, 1635. Eres el cardenal Richelieu..." },
+    { "id": "mazarin",   "host": "localhost", "port": 5002, "config": "./chars/mazarin.config.json",   "initial_situation": "París, 1635. Eres Giulio Mazarino..." }
   ]
 }
 ```
@@ -188,13 +188,13 @@ Fichero principal de sesión. Leído por el launcher y el orquestador.
 | `max_character_history` | int | Máx. mensajes en la memoria de cada personaje. `0` = ilimitado. Por defecto: `0`. |
 | `ollama_debug` | bool | Si `true`, vuelca peticiones/respuestas Ollama en un fichero JSON aparte. |
 | `ollama_debug_log` | string | Ruta al fichero de debug Ollama. Se añade sufijo numérico si ya existe. |
-| `initial_situation` | string | Narración inicial enviada a todos los personajes antes del primer turno. |
 | `turn_order` | list[string] | IDs de personajes en orden de turno; se rota en bucle. Obligatorio. |
 | `turn_timeout_seconds` | int | Segundos máximos de espera por turno antes de pasar al siguiente. |
 | `characters[].id` | string | ID único del personaje; debe coincidir con los de `turn_order`. |
 | `characters[].host` | string | Hostname del servidor del personaje. |
 | `characters[].port` | int | Puerto del servidor del personaje. |
 | `characters[].config` | string | Ruta al `char.config.json` del personaje (relativa al session config). |
+| `characters[].initial_situation` | string | Narración inicial personalizada enviada únicamente a este personaje antes del primer turno. Opcional. |
 
 ### `char.config.json`
 
