@@ -5,20 +5,19 @@
     "max_character_history": "Número máximo de mensajes en la memoria individual de cada personaje (0 = ilimitado). Al alcanzar el límite, se elimina el más antiguo. Por defecto: 0.",
     "ollama_debug": "Si true, vuelca todas las peticiones y respuestas Ollama en un fichero JSON independiente.",
     "ollama_debug_log": "Ruta al fichero de debug Ollama. Se añade sufijo numérico automático si ya existe.",
-    "initial_situation": "Narración inicial enviada a todos los personajes antes del primer turno. Puede dejarse vacío para arrancar los turnos directamente.",
     "turn_order": "Lista de IDs de personajes en orden de turno. Se rota en bucle. Todos los IDs deben estar definidos en 'characters'.",
     "turn_timeout_seconds": "Segundos máximos que el orquestador espera la respuesta de un personaje antes de pasar al siguiente.",
     "characters[].id": "ID único del personaje. Debe coincidir con los usados en turn_order.",
     "characters[].host": "Hostname donde correrá el servidor del personaje.",
     "characters[].port": "Puerto del servidor del personaje. Cada personaje debe tener un puerto distinto.",
-    "characters[].config": "Ruta al fichero char.config.json del personaje (relativa al directorio del session.config.json)."
+    "characters[].config": "Ruta al fichero char.config.json del personaje (relativa al directorio del session.config.json).",
+    "characters[].initial_situation": "Narración inicial personalizada enviada únicamente a este personaje antes del primer turno. Puede omitirse o dejarse vacío."
   },
   "session_id": "session_001",
   "log_path": "./logs/session_001.log",
   "max_character_history": 20,
   "ollama_debug": false,
   "ollama_debug_log": "./logs/session_001_ollama.json",
-  "initial_situation": "París, 1635. El cardenal Richelieu y Mazarino se reúnen en privado en el Palais-Cardinal.",
   "turn_order": ["richelieu", "mazarin"],
   "turn_timeout_seconds": 60,
   "characters": [
@@ -26,13 +25,15 @@
       "id": "richelieu",
       "host": "localhost",
       "port": 5001,
-      "config": "./chars/richelieu.config.json"
+      "config": "./chars/richelieu.config.json",
+      "initial_situation": "París, 1635. Eres el cardenal Richelieu. Te reúnes en privado con Mazarino en el Palais-Cardinal."
     },
     {
       "id": "mazarin",
       "host": "localhost",
       "port": 5002,
-      "config": "./chars/mazarin.config.json"
+      "config": "./chars/mazarin.config.json",
+      "initial_situation": "París, 1635. Eres Giulio Mazarino. Te reúnes en privado con el cardenal Richelieu en el Palais-Cardinal."
     }
   ]
 }

@@ -111,22 +111,42 @@ def _launch_character(
 
 
 # ---------------------------------------------------------------------------
-# Enviar situación inicial
+# Enviar situación inicial y arrancar turnos
 # ---------------------------------------------------------------------------
 
-async def _send_initial_situation(
-    orchestrator_host: str, orchestrator_port: int, situation: str
+async def _send_initial_situations(
+    characters: list[dict],
 ) -> None:
-    """Envía la situación inicial al orquestador via POST /narrate."""
-    url = f"http://{orchestrator_host}:{orchestrator_port}/narrate"
-    payload = {"message": situation}
+    """Envía la situación inicial personalizada a cada personaje via POST /listen."""
     async with httpx.AsyncClient(timeout=httpx.Timeout(30.0)) as client:
+        for char in characters:
+            situation = char.get("initial_situation", "")
+            if not situation:
+                continue
+            host = char.get("host", "localhost")
+            port = char.get("port")
+            url = f"http://{host}:{port}/listen"
+            payload = {"from": None, "to": [], "message": situation}
+            try:
+                resp = await client.post(url, json=payload)
+                resp.raise_for_status()
+                logger.info("Situación inicial enviada a '%s'.", char.get("id"))
+            except Exception as exc:
+                logger.error(
+                    "No se pudo enviar situación inicial a '%s': %s", char.get("id"), exc
+                )
+
+
+async def _start_turns(orchestrator_host: str, orchestrator_port: int) -> None:
+    """Señaliza al orquestador que arranque los turnos via POST /start_turns."""
+    url = f"http://{orchestrator_host}:{orchestrator_port}/start_turns"
+    async with httpx.AsyncClient(timeout=httpx.Timeout(10.0)) as client:
         try:
-            resp = await client.post(url, json=payload)
+            resp = await client.post(url)
             resp.raise_for_status()
-            logger.info("Situación inicial enviada.")
+            logger.info("Turnos iniciados.")
         except Exception as exc:
-            logger.error("No se pudo enviar la situación inicial: %s", exc)
+            logger.error("No se pudo iniciar los turnos: %s", exc)
 
 
 # ---------------------------------------------------------------------------
@@ -140,7 +160,6 @@ async def run(session_path: str, log_level: str) -> None:
     _validate_turn_order(session)
 
     session_id = session.get("session_id", "unknown")
-    initial_situation = session.get("initial_situation", "")
     orchestrator_port = 5000  # por defecto; configurable en session si se quiere
     orchestrator_host = "localhost"
 
@@ -209,11 +228,13 @@ async def run(session_path: str, log_level: str) -> None:
                 )
             logger.info("Personaje '%s' listo en puerto %d", char_id, port)
 
-        # 4. Enviar situación inicial
-        if initial_situation:
+        # 4. Enviar situación inicial personalizada y arrancar turnos
+        has_initial = any(c.get("initial_situation") for c in characters)
+        if has_initial:
             # Pequeña pausa para que los personajes carguen sus bundles
             await asyncio.sleep(1.0)
-            await _send_initial_situation(orchestrator_host, orchestrator_port, initial_situation)
+            await _send_initial_situations(characters)
+            await _start_turns(orchestrator_host, orchestrator_port)
 
         logger.info(
             "Sesión '%s' arrancada. %d personaje(s) activos. "

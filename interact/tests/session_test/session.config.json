@@ -4,7 +4,6 @@
   "max_character_history": 20,
   "ollama_debug": true,
   "ollama_debug_log": "./logs/test_richelieu_mazarin_ollama.json",
-  "initial_situation": "París, 1635. El cardenal Richelieu y Mazarino se reúnen en privado en el Palais-Cardinal para discutir la situación de la guerra en el norte de Europa. La vela proyecta sombras largas sobre los mapas extendidos sobre la mesa. Francia acaba de declarar la guerra a España.",
   "turn_order": ["richelieu", "mazarin"],
   "turn_timeout_seconds": 120,
   "characters": [
@@ -12,13 +11,15 @@
       "id": "richelieu",
       "host": "localhost",
       "port": 5001,
-      "config": "./tests/session_test/richelieu.config.json"
+      "config": "./tests/session_test/richelieu.config.json",
+      "initial_situation": "París, 1635. Eres el cardenal Richelieu. Te reúnes en privado con Mazarino en el Palais-Cardinal para discutir la situación de la guerra en el norte de Europa. La vela proyecta sombras largas sobre los mapas extendidos sobre la mesa. Francia acaba de declarar la guerra a España."
     },
     {
       "id": "mazarin",
       "host": "localhost",
       "port": 5002,
-      "config": "./tests/session_test/mazarin.config.json"
+      "config": "./tests/session_test/mazarin.config.json",
+      "initial_situation": "París, 1635. Eres Giulio Mazarino. Te reúnes en privado con el cardenal Richelieu en el Palais-Cardinal para discutir la situación de la guerra en el norte de Europa. La vela proyecta sombras largas sobre los mapas extendidos sobre la mesa. Francia acaba de declarar la guerra a España."
     }
   ]
 }
