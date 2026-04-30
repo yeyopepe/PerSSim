@@ -1,11 +1,12 @@
 # PerSSim — Personality Simulation Framework
 
-PerSSim es un framework para simular personajes históricos con personalidad consistente, usando LLMs como motor de razonamiento. El repositorio tiene dos subsistemas independientes:
+PerSSim es un framework para simular personajes históricos con personalidad consistente, usando LLMs como motor de razonamiento. El repositorio tiene tres subsistemas independientes:
 
 | Subsistema | Carpeta | Para qué |
 |---|---|---|
 | **Simulation** | `simulation/` | Definir, simular y evolucionar personajes históricos |
 | **Interact** | `interact/` | Orquestar diálogos autónomos entre varios personajes |
+| **Correspondence** | `correspondence/` | Perfiles autocontenidos de personajes para uso en modo epistolar |
 
 ---
 
@@ -21,6 +22,12 @@ Sistema multi-agente que instancia varios personajes y los hace dialogar de form
 
 → Ver [`interact/README.md`](interact/README.md)
 
+## Correspondence
+
+Perfiles autocontenidos de personajes diseñados para el agente `pen-pal`. Cada perfil incluye toda la información necesaria para que el personaje mantenga correspondencia con el usuario sin depender de ficheros externos.
+
+→ Ver [`correspondence/`](correspondence/)
+
 ---
 
 ## Agentes disponibles
@@ -33,6 +40,15 @@ Los agentes se invocan desde el entorno de desarrollo (GitHub Copilot o equivale
 | `character-v1` | Adopta la personalidad de un personaje y lo simula en conversación |
 | `character-compiler-strict` | Exporta el personaje como `Bundle_strict_<nombre>.md` |
 | `character-compiler-narrative` | Exporta el personaje como `Bundle_narrative_<nombre>.md` |
+| `pen-pal` | Mantiene correspondencia epistolar con el usuario adoptando la personalidad de un personaje |
+
+## Skills disponibles
+
+Las skills extienden las capacidades de los agentes que las invocan.
+
+| Skill | Agente | Función |
+|---|---|---|
+| `human-dialog` | `pen-pal` | Adapta el estilo de respuesta del personaje al tono y registro del interlocutor humano |
 
 ## Estructura del repositorio
 
@@ -50,6 +66,21 @@ PerSSim/
 │       ├── design.md
 │       ├── install.md
 │       └── usage.md
+├── correspondence/            ← perfiles para modo epistolar (pen-pal)
+│   └── <personaje>/
+│       ├── instructions.md
+│       └── profile.md
 └── .github/
     └── agents/
+        ├── character-v1.agent.md
+        ├── character/
+        │   └── generator/
+        │       ├── character-configurator.agent.md
+        │       ├── character-compiler-strict.agent.md
+        │       └── character-compiler-narrative.agent.md
+        └── pen-pal/
+            ├── pen-pal.agent.md
+            └── skills/
+                └── human-dialog/
+                    └── SKILL.md
 ```
