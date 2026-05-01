@@ -35,7 +35,7 @@ sequenceDiagram
     Note over L: Launcher termina aquí
 
     O->>Ca: POST /turn {turn_number: 1, deadline_unix}
-    Note over O,Cb: Los turnos arrancan; orquestador sigue corriendo
+    Note over O,Cb: Los turnos arrancan y el orquestador sigue corriendo
 ```
 
 > Si ningún personaje tiene `initial_situation`, el orquestador arranca el primer turno directamente al levantarse, sin esperar `/start_turns`.
@@ -169,6 +169,7 @@ Fichero principal de sesión. Leído por el launcher y el orquestador.
 {
   "session_id": "session_001",
   "log_path": "./logs/session_001.log",
+    "narrator_debug_log": "./logs/session_001_narrator_http.json",
   "max_character_history": 20,
   "ollama_debug": false,
   "ollama_debug_log": "./logs/session_001_ollama.json",
@@ -185,9 +186,10 @@ Fichero principal de sesión. Leído por el launcher y el orquestador.
 |---|---|---|
 | `session_id` | string | Identificador de la sesión (libre). |
 | `log_path` | string | Ruta al log de diálogo. Relativa al directorio del config. Se añade sufijo numérico si ya existe. |
+| `narrator_debug_log` | string | Ruta al log JSON del narrador con trazas HTTP hacia/desde personajes. Si no se define, se crea automáticamente en `./logs/narrator-http-000N.json`. |
 | `max_character_history` | int | Máx. mensajes en la memoria de cada personaje. `0` = ilimitado. Por defecto: `0`. |
-| `ollama_debug` | bool | Si `true`, vuelca peticiones/respuestas Ollama en un fichero JSON aparte. |
-| `ollama_debug_log` | string | Ruta al fichero de debug Ollama. Se añade sufijo numérico si ya existe. |
+| `ollama_debug` | bool | Si `true`, vuelca peticiones/respuestas Ollama en ficheros JSON por personaje. |
+| `ollama_debug_log` | string | Ruta base para logs de debug Ollama. El launcher deriva ficheros por personaje con el patrón `<base>-<character_id>-000N.json`. |
 | `turn_order` | list[string] | IDs de personajes en orden de turno; se rota en bucle. Obligatorio. |
 | `turn_timeout_seconds` | int | Segundos máximos de espera por turno antes de pasar al siguiente. |
 | `characters[].id` | string | ID único del personaje; debe coincidir con los de `turn_order`. |

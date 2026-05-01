@@ -117,7 +117,16 @@ Eminencia, los informes de Milán...
 
 ### Log de debug Ollama
 
-Si `ollama_debug: true` en `session.config.json`, se genera un fichero JSON adicional con todas las peticiones y respuestas al API de Ollama, útil para depuración:
+Si `ollama_debug: true` en `session.config.json`, el launcher genera un fichero JSON por personaje con las peticiones y respuestas al API de Ollama:
+
+- Cada personaje: `<base>-<character_id>-000N.json`
+
+Ejemplo si `ollama_debug_log` es `./logs/test-session-ollama.json`:
+
+- `./logs/test-session-ollama-richelieu-0001.json`
+- `./logs/test-session-ollama-mazarin-0001.json`
+
+Contenido de cada fichero:
 
 ```json
 [
@@ -136,6 +145,39 @@ Si `ollama_debug: true` en `session.config.json`, se genera un fichero JSON adic
     "who": "richelieu",
     "direction": "response",
     "content": "Monsieur Mazarino..."
+  }
+]
+```
+
+### Log de trazas del narrador
+
+Además del log de diálogo, el orquestador genera un log JSON del narrador con las llamadas HTTP que hace a cada personaje (`/turn`, `/listen`, `/turn_cancel`) y lo que recibe de ellos (payloads de `/character_talk` y respuestas HTTP).
+
+- Configurable con `narrator_debug_log` en `session.config.json`.
+- Si no se define, se crea automáticamente en `./logs/narrator-http-000N.json`.
+
+Ejemplo de entradas:
+
+```json
+[
+  {
+    "ts": "2026-05-01T18:12:10.123Z",
+    "direction": "request",
+    "to": "richelieu",
+    "endpoint": "/turn",
+    "method": "POST",
+    "status": 200,
+    "elapsed_ms": 31
+  },
+  {
+    "ts": "2026-05-01T18:12:41.552Z",
+    "direction": "inbound",
+    "from": "richelieu",
+    "endpoint": "/character_talk",
+    "payload": {
+      "who": "richelieu",
+      "message": "..."
+    }
   }
 ]
 ```

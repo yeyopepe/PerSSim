@@ -19,6 +19,8 @@ dependencies = [
 ]
 
 [project.scripts]
+# Keep both names for compatibility; docs and examples use perssim-launch.
+perssim-launch  = "perssim.launcher:main"
 perssim-launcher = "perssim.launcher:main"
 perssim-char   = "perssim.char:main"
 perssim-orch   = "perssim.orchestrator:main"

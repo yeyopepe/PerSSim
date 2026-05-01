@@ -55,10 +55,15 @@ source .venv/bin/activate      # macOS / Linux
 pip install -e .
 ```
 
+Importante: ejecuta `pip install -e .` desde la carpeta `interact/` (la que contiene `pyproject.toml`).
+Si usas `pip install -e ./perssim` fallará porque `perssim/` es el paquete fuente y no un proyecto instalable por sí solo.
+
 ### Verificar la instalación
 
 ```bash
 perssim-launch --help
+# Alternativa si el script no está en PATH (común en Windows)
+python -m perssim.launcher --help
 ```
 
 ---

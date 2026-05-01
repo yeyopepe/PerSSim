@@ -15,6 +15,7 @@ import argparse
 import asyncio
 import json
 import logging
+import re
 import signal
 import subprocess
 import sys
@@ -31,6 +32,37 @@ logger = logging.getLogger(__name__)
 # Tiempo máximo esperando a que un proceso esté listo
 _HEALTH_TIMEOUT_S = 60
 _HEALTH_POLL_S = 0.5
+
+
+def _sanitize_actor_id(actor_id: str) -> str:
+    sanitized = re.sub(r"[^a-zA-Z0-9_-]+", "_", actor_id.strip())
+    return sanitized or "unknown"
+
+
+def _build_actor_log_path(base_with_sequence: str, actor_id: str) -> str:
+    """Deriva un path por actor conservando el sufijo de secuencia de sesión.
+
+    Ejemplo:
+    - base: logs/test-ollama-0003.json
+    - actor: richelieu
+    - out : logs/test-ollama-richelieu-0003.json
+    """
+    path = Path(base_with_sequence)
+    stem = path.stem
+    suffix = path.suffix
+    actor = _sanitize_actor_id(actor_id)
+
+    m = re.match(r"^(?P<base>.+)-(?P<seq>\d{4})$", stem)
+    if m:
+        return str(path.with_name(f"{m.group('base')}-{actor}-{m.group('seq')}{suffix}"))
+    return str(path.with_name(f"{stem}-{actor}{suffix}"))
+
+
+def _initialize_empty_json_log(log_path: str) -> None:
+    path = Path(log_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if not path.exists():
+        path.write_text("[]", encoding="utf-8")
 
 
 def _validate_turn_order(session: dict) -> None:
@@ -171,23 +203,38 @@ async def run(session_path: str, log_level: str) -> None:
         logger.info("Session log: %s", log_path)
 
     max_character_history: int = session.get("max_character_history", 0)
+    characters = session.get("characters", [])
+
     ollama_debug: bool = session.get("ollama_debug", False)
     ollama_debug_log: Optional[str] = session.get("ollama_debug_log")
+    character_ollama_debug_logs: dict[str, str] = {}
     if ollama_debug_log and not Path(ollama_debug_log).is_absolute():
         ollama_debug_log = str((session_dir / ollama_debug_log).resolve())
 
     if ollama_debug_log:
+        # Reserva un índice de sesión común para todos los personajes.
         ollama_debug_log = get_next_log_path(ollama_debug_log)
-        logger.info("Ollama debug log: %s", ollama_debug_log)
-
-    characters = session.get("characters", [])
+        for char in characters:
+            char_id = str(char.get("id", "unknown"))
+            character_ollama_debug_logs[char_id] = _build_actor_log_path(ollama_debug_log, char_id)
+            _initialize_empty_json_log(character_ollama_debug_logs[char_id])
+            logger.info(
+                "Ollama debug log (%s): %s",
+                char_id,
+                character_ollama_debug_logs[char_id],
+            )
 
     processes: list[subprocess.Popen] = []
 
     try:
         # 1. Arrancar orquestador
         orch_proc = _launch_orchestrator(
-            str(session_file), orchestrator_port, log_level, log_path, ollama_debug, ollama_debug_log
+            str(session_file),
+            orchestrator_port,
+            log_level,
+            log_path,
+            ollama_debug,
+            None,
         )
         processes.append(orch_proc)
 
@@ -200,7 +247,15 @@ async def run(session_path: str, log_level: str) -> None:
             if not config_path:
                 logger.warning("Personaje %s sin config; omitiendo.", char.get("id"))
                 continue
-            proc = _launch_character(config_path, log_level, ollama_debug, ollama_debug_log, max_character_history)
+            char_id = str(char.get("id", "unknown"))
+            char_ollama_log = character_ollama_debug_logs.get(char_id)
+            proc = _launch_character(
+                config_path,
+                log_level,
+                ollama_debug,
+                char_ollama_log,
+                max_character_history,
+            )
             processes.append(proc)
 
         # 3. Health checks

@@ -173,13 +173,13 @@ async def _generate_and_send(
 
         messages = list(state.history)
         if prompt_message:
-            messages.append({"role": "user", "content": f"narrador: {prompt_message}"})
+            messages.append({"role": "user", "content": prompt_message})
         response_text = await _generate_with_cancel(state, messages)
         if not response_text or state._turn_cancel_event.is_set():
             return
 
         if prompt_message:
-            _append_to_history(state, {"role": "user", "content": f"narrador: {prompt_message}"})
+            _append_to_history(state, {"role": "user", "content": prompt_message})
         _append_to_history(state, {"role": "assistant", "content": response_text})
         state.conversation_turns += 1
         ts = datetime.now(timezone.utc).isoformat()
@@ -224,7 +224,7 @@ def create_app(config: dict) -> FastAPI:
     @app.post("/listen", response_model=CharacterListenResponse)
     async def listen(req: ListenRequest):
         state = _state
-        sender = req.from_ if req.from_ else "narrador"
+        sender = req.from_ if req.from_ else None
         content = req.message
         if sender == state.character_id:
             return CharacterListenResponse(
@@ -232,7 +232,10 @@ def create_app(config: dict) -> FastAPI:
                 will_respond=False,
                 next_decision_time_unix=None,
             )
-        _append_to_history(state, {"role": "user", "content": f"{sender}: {content}"})
+        if sender:
+            _append_to_history(state, {"role": "user", "content": f"{sender}: {content}"})
+        else:
+            _append_to_history(state, {"role": "user", "content": content})
         return CharacterListenResponse(
             character_id=state.character_id,
             will_respond=False,

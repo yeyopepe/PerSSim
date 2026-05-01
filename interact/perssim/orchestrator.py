@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import re
 import time
 from contextlib import asynccontextmanager, suppress
 from datetime import datetime, timezone
@@ -25,7 +26,6 @@ from perssim.models import (
     TurnRequest,
 )
 from perssim.tui import TUI
-from perssim import ollama_debug as odbg
 from perssim.ollama_debug import get_next_log_path
 
 logger = logging.getLogger(__name__)
@@ -37,6 +37,8 @@ class OrchestratorState:
     def __init__(self, session: dict) -> None:
         self.session_id: str = session["session_id"]
         self.log_path: Path = Path(session["log_path"])
+        narrator_debug_log = session.get("narrator_debug_log")
+        self.narrator_debug_log: Optional[str] = str(narrator_debug_log) if narrator_debug_log else None
         self.characters: dict[str, dict] = {
             c["id"]: {
                 "host": c["host"],
@@ -61,12 +63,6 @@ class OrchestratorState:
         self.current_deadline_unix: Optional[float] = None
         self._turn_lock: asyncio.Lock = asyncio.Lock()
         self._turn_task: Optional[asyncio.Task] = None
-
-        self.ollama_debug: bool = session.get("ollama_debug", False)
-        ollama_debug_log_base = session.get("ollama_debug_log")
-        self.ollama_debug_log: Optional[str] = (
-            get_next_log_path(ollama_debug_log_base) if ollama_debug_log_base else None
-        )
 
         self.sequence_id: int = 0
         self._turns_started: bool = False
@@ -100,6 +96,26 @@ class OrchestratorState:
     def log_event(self, event_type: str, message: str) -> None:
         pass
 
+    def log_narrator_http(self, entry: dict) -> None:
+        if not self.narrator_debug_log:
+            return
+
+        path = Path(self.narrator_debug_log)
+        path.parent.mkdir(parents=True, exist_ok=True)
+
+        if not path.exists():
+            path.write_text("[]", encoding="utf-8")
+
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+            if not isinstance(data, list):
+                data = []
+        except json.JSONDecodeError:
+            data = []
+
+        data.append(entry)
+        path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+
     def close(self) -> None:
         self._log_file.close()
 
@@ -112,12 +128,47 @@ class OrchestratorState:
     ) -> bool:
         url = f"{self.char_url(character_id)}{endpoint}"
         for attempt in range(1, retries + 1):
+            start = time.perf_counter()
             try:
                 async with httpx.AsyncClient(timeout=_CHAR_TIMEOUT) as client:
                     resp = await client.post(url, json=payload)
                     resp.raise_for_status()
+                elapsed_ms = int((time.perf_counter() - start) * 1000)
+                self.log_narrator_http({
+                    "ts": datetime.now(timezone.utc).isoformat(),
+                    "direction": "request",
+                    "to": character_id,
+                    "endpoint": endpoint,
+                    "attempt": attempt,
+                    "method": "POST",
+                    "url": url,
+                    "payload": payload,
+                    "status": resp.status_code,
+                    "response": _safe_json_response(resp),
+                    "elapsed_ms": elapsed_ms,
+                })
                 return True
             except Exception as exc:
+                elapsed_ms = int((time.perf_counter() - start) * 1000)
+                status_code = None
+                response_body: Optional[object] = None
+                if isinstance(exc, httpx.HTTPStatusError):
+                    status_code = exc.response.status_code
+                    response_body = _safe_json_response(exc.response)
+                self.log_narrator_http({
+                    "ts": datetime.now(timezone.utc).isoformat(),
+                    "direction": "request",
+                    "to": character_id,
+                    "endpoint": endpoint,
+                    "attempt": attempt,
+                    "method": "POST",
+                    "url": url,
+                    "payload": payload,
+                    "status": status_code,
+                    "response": response_body,
+                    "elapsed_ms": elapsed_ms,
+                    "error": str(exc),
+                })
                 logger.warning(
                     "Error POST %s a %s (intento %d/%d): %s",
                     endpoint,
@@ -215,6 +266,16 @@ class OrchestratorState:
 _state: Optional[OrchestratorState] = None
 
 
+def _safe_json_response(resp: httpx.Response) -> object:
+    try:
+        return resp.json()
+    except Exception:
+        text = resp.text
+        if len(text) > 4000:
+            return text[:4000] + "...<truncated>"
+        return text
+
+
 async def _post_listen_to_all(
     state: OrchestratorState,
     from_: Optional[str],
@@ -223,26 +284,13 @@ async def _post_listen_to_all(
 ) -> int:
     payload = ListenRequest(from_=from_, to=to, message=message).model_dump(by_alias=True)
     ok = 0
-    async with httpx.AsyncClient(timeout=_CHAR_TIMEOUT) as client:
-        tasks = []
-        for char_id in state.characters:
-            url = f"{state.char_url(char_id)}/listen"
-            tasks.append(_post_listen_one(client, char_id, url, payload))
-        results = await asyncio.gather(*tasks, return_exceptions=True)
-    for char_id, result in zip(state.characters.keys(), results):
-        if isinstance(result, Exception):
-            logger.warning("Error notificando a %s: %s", char_id, result)
+    for char_id in state.characters:
+        sent = await state._post_with_retries(char_id, "/listen", payload, retries=1)
+        if not sent:
+            logger.warning("Error notificando a %s", char_id)
         else:
             ok += 1
     return ok
-
-
-async def _post_listen_one(
-    client: httpx.AsyncClient, char_id: str, url: str, payload: dict
-) -> None:
-    resp = await client.post(url, json=payload)
-    resp.raise_for_status()
-    logger.debug("POST /listen → %s: OK", char_id)
 
 
 async def _stdin_command_loop(state: OrchestratorState) -> None:
@@ -323,6 +371,14 @@ def create_app(session: dict) -> FastAPI:
         state = _state
         if not req.who:
             raise HTTPException(status_code=400, detail="who is required")
+
+        state.log_narrator_http({
+            "ts": datetime.now(timezone.utc).isoformat(),
+            "direction": "inbound",
+            "from": req.who,
+            "endpoint": "/character_talk",
+            "payload": req.model_dump(),
+        })
 
         async with state._turn_lock:
             current_character = state.current_character()
@@ -425,6 +481,11 @@ def main() -> None:
     parser.add_argument("--port", type=int, default=5000)
     parser.add_argument("--log-level", default="INFO")
     parser.add_argument("--log-path", default=None, help="Ruta al fichero de log de sesión")
+    parser.add_argument(
+        "--narrator-debug-log",
+        default=None,
+        help="Ruta al JSON de trazas HTTP del narrador (orquestador) hacia personajes.",
+    )
     parser.add_argument("--ollama-debug", action="store_true", default=False)
     parser.add_argument("--ollama-debug-log", default=None, help="Ruta absoluta al JSONL de debug Ollama")
     args = parser.parse_args()
@@ -446,6 +507,8 @@ def main() -> None:
 
     if args.log_path:
         session["log_path"] = args.log_path
+    if args.narrator_debug_log:
+        session["narrator_debug_log"] = args.narrator_debug_log
 
     if args.ollama_debug:
         session["ollama_debug"] = True
@@ -457,12 +520,27 @@ def main() -> None:
         if not Path(log_path).is_absolute():
             log_path = str((session_dir / log_path).resolve())
 
-        import re
         if not re.search(r'-\d{4}\.\w+$', log_path):
             log_path = get_next_log_path(log_path)
 
         session["log_path"] = log_path
         logger.info("Session log: %s", session["log_path"])
+
+    narrator_debug_log = session.get("narrator_debug_log")
+    if not narrator_debug_log:
+        # Default: alongside session log with deterministic suffix.
+        if session.get("log_path"):
+            default_base = str(Path(session["log_path"]).with_name("narrator-http.json"))
+        else:
+            default_base = str((session_dir / "logs" / "narrator-http.json").resolve())
+        narrator_debug_log = default_base
+
+    if narrator_debug_log and not Path(narrator_debug_log).is_absolute():
+        narrator_debug_log = str((session_dir / narrator_debug_log).resolve())
+    if narrator_debug_log and not re.search(r'-\d{4}\.\w+$', narrator_debug_log):
+        narrator_debug_log = get_next_log_path(narrator_debug_log)
+    session["narrator_debug_log"] = narrator_debug_log
+    logger.info("Narrator HTTP debug log: %s", session["narrator_debug_log"])
 
     if session.get("ollama_debug_log"):
         ollama_log_path = session["ollama_debug_log"]
